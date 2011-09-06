@@ -1,0 +1,65 @@
+﻿ 'adds the min,max, and mean of feature SLOWWWW!!!!!
+    Private Sub LoadStasticalValuesofFeature(ByVal feature As GenomicFeature)
+        OpenDatabase()
+        'sets the min for the feature's threshold
+        If feature.ThresholdType = "Score" Then
+            cmd = New MySqlCommand("SELECT min(score) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMin = dr(0)
+            dr.Close() : cmd.Dispose()
+        ElseIf feature.ThresholdType = "SignalValue" Then
+            cmd = New MySqlCommand("SELECT min(signalvalue) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMin = dr(0)
+            dr.Close() : cmd.Dispose()
+        ElseIf feature.ThresholdType = "perCpg" Then
+            cmd = New MySqlCommand("SELECT min(percpg) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMin = dr(0)
+            dr.Close() : cmd.Dispose()
+        End If
+        'sets the max for the feature's threshold
+        If feature.ThresholdType = "Score" Then
+            cmd = New MySqlCommand("SELECT max(score) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMax = dr(0)
+            dr.Close() : cmd.Dispose()
+        ElseIf feature.ThresholdType = "SignalValue" Then
+            cmd = New MySqlCommand("SELECT max(signalvalue) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMax = dr(0)
+            dr.Close() : cmd.Dispose()
+        ElseIf feature.ThresholdType = "perCpg" Then
+            cmd = New MySqlCommand("SELECT max(percpg) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMax = dr(0)
+            dr.Close() : cmd.Dispose()
+        End If
+        'sets the mean for the feature's threshold
+        If feature.ThresholdType = "Score" Then
+            cmd = New MySqlCommand("SELECT avg(score) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMean = dr(0)
+            dr.Close() : cmd.Dispose()
+        ElseIf feature.ThresholdType = "SignalValue" Then
+            cmd = New MySqlCommand("SELECT avg(signalvalue) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMean = dr(0)
+            dr.Close() : cmd.Dispose()
+        ElseIf feature.ThresholdType = "perCpg" Then
+            cmd = New MySqlCommand("SELECT avg(percpg) FROM " & feature.TableName, cn)
+            dr = cmd.ExecuteReader()
+            dr.Read()
+            feature.ThresholdMean = dr(0)
+            dr.Close() : cmd.Dispose()
+        End If
+        cn.Close()
+    End Sub

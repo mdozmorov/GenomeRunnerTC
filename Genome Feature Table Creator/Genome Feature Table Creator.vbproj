@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{74E93E66-F0B9-4C89-BD50-D8D3D1010856}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>Genome_Feature_Table_Creator.My.MyApplication</StartupObject>
+    <RootNamespace>Genome_Feature_Table_Creator</RootNamespace>
+    <AssemblyName>Genome Feature Table Creator</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <MyType>WindowsForms</MyType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>Genome Feature Table Creator.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>Genome Feature Table Creator.xml</DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionStrict>Off</OptionStrict>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="alglibnet2">
+      <HintPath>..\..\..\..\GenomeRunner3.7.4\GenomeRunner\bin\Debug\alglibnet2.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.RDPCOMAPILib">
+      <HintPath>\\ATLAS\wrenlab\Code\Mikhail Dozmorov\Misc.VB2010\Misc\obj\x86\Debug\Interop.RDPCOMAPILib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.STATCONNECTORCLNTLib">
+      <HintPath>\\ATLAS\wrenlab\Code\Mikhail Dozmorov\Misc.VB2010\Misc\obj\x86\Debug\Interop.STATCONNECTORCLNTLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.StatConnectorCommonLib">
+      <HintPath>\\ATLAS\wrenlab\Code\Mikhail Dozmorov\Misc.VB2010\Misc\obj\x86\Debug\Interop.StatConnectorCommonLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Interop.STATCONNECTORSRVLib">
+      <HintPath>\\ATLAS\wrenlab\Code\Mikhail Dozmorov\Misc.VB2010\Misc\obj\x86\Debug\Interop.STATCONNECTORSRVLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.3.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MySQL\MySQL Connector Net 6.3.6\Assemblies\v4.0\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data.Entity, Version=6.3.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MySQL\MySQL Connector Net 6.3.6\Assemblies\v4.0\MySql.Data.Entity.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Web, Version=6.3.6.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MySQL\MySQL Connector Net 6.3.6\Assemblies\v4.0\MySql.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Drawing" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Windows.Forms" />
+    <Import Include="System.Linq" />
+    <Import Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Feature.vb" />
+    <Compile Include="FormCalculateStatistics.Designer.vb">
+      <DependentUpon>FormCalculateStatistics.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FormCalculateStatistics.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormExonGenerator.designer.vb">
+      <DependentUpon>FormExonGenerator.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FormExonGenerator.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormQuery.Designer.vb">
+      <DependentUpon>FormQuery.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FormQuery.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSqlQueryEditor.Designer.vb">
+      <DependentUpon>FormSqlQueryEditor.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FormSqlQueryEditor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMain.Designer.vb">
+      <DependentUpon>FormMain.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Application.myapp</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="My Project\Settings.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="xalglib.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FormCalculateStatistics.resx">
+      <DependentUpon>FormCalculateStatistics.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormExonGenerator.resx">
+      <DependentUpon>FormExonGenerator.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormQuery.resx">
+      <DependentUpon>FormQuery.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSqlQueryEditor.resx">
+      <DependentUpon>FormSqlQueryEditor.vb</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="My Project\Application.myapp">
+      <Generator>MyApplicationCodeGenerator</Generator>
+      <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FeaturesToAdd\FeatureBaseCountReport.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FeaturesToAdd\FeatureList.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CodeDump.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="RCOMServerLib">
+      <Guid>{38008F95-0BBF-43FD-A884-2DE4B3939429}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
