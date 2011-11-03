@@ -167,6 +167,21 @@ End Class
     Public Class kdtree
         Public csobj As alglib.kdtree
     End Class
+    Public Sub kdtreeserialize(ByVal obj As kdtree, ByRef s_out As String)
+        Try
+            alglib.kdtreeserialize(obj.csobj, s_out)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+    Public Sub kdtreeunserialize(ByVal s_in As String, ByRef obj As kdtree)
+        Try
+            alglib.kdtreeunserialize(s_in, obj.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
 
 
     Public Sub kdtreebuild(ByVal xy(,) As Double, ByVal n As Integer, ByVal nx As Integer, ByVal ny As Integer, ByVal normtype As Integer, ByRef kdt As kdtree)
@@ -843,6 +858,21 @@ End Class
         End Property
         Public csobj As alglib.dfreport
     End Class
+    Public Sub dfserialize(ByVal obj As decisionforest, ByRef s_out As String)
+        Try
+            alglib.dfserialize(obj.csobj, s_out)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+    Public Sub dfunserialize(ByVal s_in As String, ByRef obj As decisionforest)
+        Try
+            alglib.dfunserialize(s_in, obj.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
 
 
     Public Sub dfbuildrandomdecisionforest(ByVal xy(,) As Double, ByVal npoints As Integer, ByVal nvars As Integer, ByVal nclasses As Integer, ByVal ntrees As Integer, ByVal r As Double, ByRef info As Integer, ByRef df As decisionforest, ByRef rep As dfreport)
@@ -850,6 +880,17 @@ End Class
             df = New decisionforest()
             rep = New dfreport()
             alglib.dfbuildrandomdecisionforest(xy, npoints, nvars, nclasses, ntrees, r, info, df.csobj, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub dfbuildrandomdecisionforestx1(ByVal xy(,) As Double, ByVal npoints As Integer, ByVal nvars As Integer, ByVal nclasses As Integer, ByVal ntrees As Integer, ByVal nrndvars As Integer, ByVal r As Double, ByRef info As Integer, ByRef df As decisionforest, ByRef rep As dfreport)
+        Try
+            df = New decisionforest()
+            rep = New dfreport()
+            alglib.dfbuildrandomdecisionforestx1(xy, npoints, nvars, nclasses, ntrees, nrndvars, r, info, df.csobj, rep.csobj)
         Catch _E_Alglib As alglib.alglibexception
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
@@ -2121,6 +2162,21 @@ End Class
     Public Class multilayerperceptron
         Public csobj As alglib.multilayerperceptron
     End Class
+    Public Sub mlpserialize(ByVal obj As multilayerperceptron, ByRef s_out As String)
+        Try
+            alglib.mlpserialize(obj.csobj, s_out)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+    Public Sub mlpunserialize(ByVal s_in As String, ByRef obj As multilayerperceptron)
+        Try
+            alglib.mlpunserialize(s_in, obj.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
 
 
     Public Sub mlpcreate0(ByVal nin As Integer, ByVal nout As Integer, ByRef network As multilayerperceptron)
@@ -2277,6 +2333,105 @@ End Class
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
     End Function
+
+
+    Public Function mlpgetlayerscount(ByVal network As multilayerperceptron) As Integer
+        Try
+            mlpgetlayerscount = alglib.mlpgetlayerscount(network.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Function
+
+
+    Public Function mlpgetlayersize(ByVal network As multilayerperceptron, ByVal k As Integer) As Integer
+        Try
+            mlpgetlayersize = alglib.mlpgetlayersize(network.csobj, k)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Function
+
+
+    Public Sub mlpgetinputscaling(ByVal network As multilayerperceptron, ByVal i As Integer, ByRef mean As Double, ByRef sigma As Double)
+        Try
+            alglib.mlpgetinputscaling(network.csobj, i, mean, sigma)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mlpgetoutputscaling(ByVal network As multilayerperceptron, ByVal i As Integer, ByRef mean As Double, ByRef sigma As Double)
+        Try
+            alglib.mlpgetoutputscaling(network.csobj, i, mean, sigma)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mlpgetneuroninfo(ByVal network As multilayerperceptron, ByVal k As Integer, ByVal i As Integer, ByRef fkind As Integer, ByRef threshold As Double)
+        Try
+            alglib.mlpgetneuroninfo(network.csobj, k, i, fkind, threshold)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Function mlpgetweight(ByVal network As multilayerperceptron, ByVal k0 As Integer, ByVal i0 As Integer, ByVal k1 As Integer, ByVal i1 As Integer) As Double
+        Try
+            mlpgetweight = alglib.mlpgetweight(network.csobj, k0, i0, k1, i1)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Function
+
+
+    Public Sub mlpsetinputscaling(ByVal network As multilayerperceptron, ByVal i As Integer, ByVal mean As Double, ByVal sigma As Double)
+        Try
+            alglib.mlpsetinputscaling(network.csobj, i, mean, sigma)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mlpsetoutputscaling(ByVal network As multilayerperceptron, ByVal i As Integer, ByVal mean As Double, ByVal sigma As Double)
+        Try
+            alglib.mlpsetoutputscaling(network.csobj, i, mean, sigma)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mlpsetneuroninfo(ByVal network As multilayerperceptron, ByVal k As Integer, ByVal i As Integer, ByVal fkind As Integer, ByVal threshold As Double)
+        Try
+            alglib.mlpsetneuroninfo(network.csobj, k, i, fkind, threshold)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mlpsetweight(ByVal network As multilayerperceptron, ByVal k0 As Integer, ByVal i0 As Integer, ByVal k1 As Integer, ByVal i1 As Integer, ByVal w As Double)
+        Try
+            alglib.mlpsetweight(network.csobj, k0, i0, k1, i1, w)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mlpactivationfunction(ByVal net As Double, ByVal k As Integer, ByRef f As Double, ByRef df As Double, ByRef d2f As Double)
+        Try
+            alglib.mlpactivationfunction(net, k, f, df, d2f)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
 
 
     Public Sub mlpprocess(ByVal network As multilayerperceptron, ByVal x() As Double, ByRef y() As Double)
@@ -2823,6 +2978,900 @@ End Class
         End Try
     End Function
 
+    Public Class mincgstate
+        Public csobj As alglib.mincgstate
+    End Class
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Class mincgreport
+        Public Property iterationscount() As Integer
+        Get
+            Return csobj.iterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.iterationscount = Value
+        End Set
+        End Property
+        Public Property nfev() As Integer
+        Get
+            Return csobj.nfev
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.nfev = Value
+        End Set
+        End Property
+        Public Property terminationtype() As Integer
+        Get
+            Return csobj.terminationtype
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.terminationtype = Value
+        End Set
+        End Property
+        Public csobj As alglib.mincgreport
+    End Class
+
+
+    Public Sub mincgcreate(ByVal n As Integer, ByVal x() As Double, ByRef state As mincgstate)
+        Try
+            state = New mincgstate()
+            alglib.mincgcreate(n, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgcreate(ByVal x() As Double, ByRef state As mincgstate)
+        Try
+            state = New mincgstate()
+            alglib.mincgcreate(x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgcreatef(ByVal n As Integer, ByVal x() As Double, ByVal diffstep As Double, ByRef state As mincgstate)
+        Try
+            state = New mincgstate()
+            alglib.mincgcreatef(n, x, diffstep, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgcreatef(ByVal x() As Double, ByVal diffstep As Double, ByRef state As mincgstate)
+        Try
+            state = New mincgstate()
+            alglib.mincgcreatef(x, diffstep, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetcond(ByVal state As mincgstate, ByVal epsg As Double, ByVal epsf As Double, ByVal epsx As Double, ByVal maxits As Integer)
+        Try
+            alglib.mincgsetcond(state.csobj, epsg, epsf, epsx, maxits)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetscale(ByVal state As mincgstate, ByVal s() As Double)
+        Try
+            alglib.mincgsetscale(state.csobj, s)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetxrep(ByVal state As mincgstate, ByVal needxrep As Boolean)
+        Try
+            alglib.mincgsetxrep(state.csobj, needxrep)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetcgtype(ByVal state As mincgstate, ByVal cgtype As Integer)
+        Try
+            alglib.mincgsetcgtype(state.csobj, cgtype)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetstpmax(ByVal state As mincgstate, ByVal stpmax As Double)
+        Try
+            alglib.mincgsetstpmax(state.csobj, stpmax)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsuggeststep(ByVal state As mincgstate, ByVal stp As Double)
+        Try
+            alglib.mincgsuggeststep(state.csobj, stp)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetprecdefault(ByVal state As mincgstate)
+        Try
+            alglib.mincgsetprecdefault(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetprecdiag(ByVal state As mincgstate, ByVal d() As Double)
+        Try
+            alglib.mincgsetprecdiag(state.csobj, d)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgsetprecscale(ByVal state As mincgstate)
+        Try
+            alglib.mincgsetprecscale(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Function mincgiteration(ByVal state As mincgstate) As Boolean
+        Try
+            mincgiteration = alglib.mincgiteration(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Function
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' This family of functions is used to launcn iterations of nonlinear optimizer
+    ' 
+    ' These functions accept following parameters:
+    '     func    -   callback which calculates function (or merit function)
+    '                 value func at given point x
+    '     grad    -   callback which calculates function (or merit function)
+    '                 value func and gradient grad at given point x
+    '     rep     -   optional callback which is called after each iteration
+    '                 can be null
+    '     obj     -   optional object which is passed to func/grad/hess/jac/rep
+    '                 can be null
+    ' 
+    ' 
+    ' NOTES:
+    ' 
+    ' 1. This function has two different implementations: one which  uses  exact
+    '    (analytical) user-supplied  gradient, and one which uses function value
+    '    only  and  numerically  differentiates  function  in  order  to  obtain
+    '    gradient.
+    ' 
+    '    Depending  on  the  specific  function  used to create optimizer object
+    '    (either MinCGCreate()  for analytical gradient  or  MinCGCreateF()  for
+    '    numerical differentiation) you should  choose  appropriate  variant  of
+    '    MinCGOptimize() - one which accepts function AND gradient or one  which
+    '    accepts function ONLY.
+    ' 
+    '    Be careful to choose variant of MinCGOptimize()  which  corresponds  to
+    '    your optimization scheme! Table below lists different  combinations  of
+    '    callback (function/gradient) passed  to  MinCGOptimize()  and  specific
+    '    function used to create optimizer.
+    ' 
+    ' 
+    '                   |         USER PASSED TO MinCGOptimize()
+    '    CREATED WITH   |  function only   |  function and gradient
+    '    ------------------------------------------------------------
+    '    MinCGCreateF() |     work                FAIL
+    '    MinCGCreate()  |     FAIL                work
+    ' 
+    '    Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
+    '    function and MinCGOptimize() version. Attemps to use  such  combination
+    '    (for  example,  to create optimizer with  MinCGCreateF()  and  to  pass
+    '    gradient information to MinCGOptimize()) will lead to  exception  being
+    '    thrown. Either  you  did  not  pass  gradient when it WAS needed or you
+    '    passed gradient when it was NOT needed.
+    ' 
+    '   -- ALGLIB --
+    '      Copyright 20.04.2009 by Bochkanov Sergey
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Sub mincgoptimize(ByVal state As mincgstate, ByVal func As ndimensional_func, ByVal rep As ndimensional_rep, ByVal obj As Object)
+        Dim innerobj As alglib.mincg.mincgstate = state.csobj.innerobj
+        If func Is Nothing Then
+            Throw New AlglibException("ALGLIB: error in 'mincgoptimize()' (func is null)")
+        End If
+        Try
+            While alglib.mincg.mincgiteration(innerobj)
+                If innerobj.needf Then
+                    func(innerobj.x,  innerobj.f, obj)
+                    Continue While
+                End If
+                If innerobj.xupdated Then
+                    If rep Isnot Nothing Then
+                        rep(innerobj.x, innerobj.f, obj)
+                    End If
+                    Continue While
+                End If
+                Throw New AlglibException("ALGLIB: error in 'mincgoptimize' (some derivatives were not provided?)")
+            End While
+        Catch E As alglib.alglibexception
+            Throw New AlglibException(E.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgoptimize(ByVal state As mincgstate, ByVal grad As ndimensional_grad, ByVal rep As ndimensional_rep, ByVal obj As Object)
+        Dim innerobj As alglib.mincg.mincgstate = state.csobj.innerobj
+        If grad Is Nothing Then
+            Throw New AlglibException("ALGLIB: error in 'mincgoptimize()' (grad is null)")
+        End If
+        Try
+            While alglib.mincg.mincgiteration(innerobj)
+                If innerobj.needfg Then
+                    grad(innerobj.x, innerobj.f, innerobj.g, obj)
+                    Continue While
+                End If
+                If innerobj.xupdated Then
+                    If rep Isnot Nothing Then
+                        rep(innerobj.x, innerobj.f, obj)
+                    End If
+                    Continue While
+                End If
+                Throw New AlglibException("ALGLIB: error in 'mincgoptimize' (some derivatives were not provided?)")
+            End While
+        Catch E As alglib.alglibexception
+            Throw New AlglibException(E.Msg)
+        End Try
+    End Sub
+
+
+
+
+    Public Sub mincgresults(ByVal state As mincgstate, ByRef x() As Double, ByRef rep As mincgreport)
+        Try
+            rep = New mincgreport()
+            alglib.mincgresults(state.csobj, x, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgresultsbuf(ByVal state As mincgstate, ByRef x() As Double, ByRef rep As mincgreport)
+        Try
+            alglib.mincgresultsbuf(state.csobj, x, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mincgrestartfrom(ByVal state As mincgstate, ByVal x() As Double)
+        Try
+            alglib.mincgrestartfrom(state.csobj, x)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+    Public Class minbleicstate
+        Public csobj As alglib.minbleicstate
+    End Class
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'This structure stores optimization report:
+    '* InnerIterationsCount      number of inner iterations
+    '* OuterIterationsCount      number of outer iterations
+    '* NFEV                      number of gradient evaluations
+    '* TerminationType           termination type (see below)
+    '
+    'TERMINATION CODES
+    '
+    'TerminationType field contains completion code, which can be:
+    '  -10   unsupported combination of algorithm settings:
+    '        1) StpMax is set to non-zero value,
+    '        AND 2) non-default preconditioner is used.
+    '        You can't use both features at the same moment,
+    '        so you have to choose one of them (and to turn
+    '        off another one).
+    '  -3    inconsistent constraints. Feasible point is
+    '        either nonexistent or too hard to find. Try to
+    '        restart optimizer with better initial
+    '        approximation
+    '   4    conditions on constraints are fulfilled
+    '        with error less than or equal to EpsC
+    '   5    MaxIts steps was taken
+    '   7    stopping conditions are too stringent,
+    '        further improvement is impossible,
+    '        X contains best point found so far.
+    '
+    'ADDITIONAL FIELDS
+    '
+    'There are additional fields which can be used for debugging:
+    '* DebugEqErr                error in the equality constraints (2-norm)
+    '* DebugFS                   f, calculated at projection of initial point
+    '                            to the feasible set
+    '* DebugFF                   f, calculated at the final point
+    '* DebugDX                   |X_start-X_final|
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Class minbleicreport
+        Public Property inneriterationscount() As Integer
+        Get
+            Return csobj.inneriterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.inneriterationscount = Value
+        End Set
+        End Property
+        Public Property outeriterationscount() As Integer
+        Get
+            Return csobj.outeriterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.outeriterationscount = Value
+        End Set
+        End Property
+        Public Property nfev() As Integer
+        Get
+            Return csobj.nfev
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.nfev = Value
+        End Set
+        End Property
+        Public Property terminationtype() As Integer
+        Get
+            Return csobj.terminationtype
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.terminationtype = Value
+        End Set
+        End Property
+        Public Property debugeqerr() As Double
+        Get
+            Return csobj.debugeqerr
+        End Get
+        Set(ByVal Value As Double)
+            csobj.debugeqerr = Value
+        End Set
+        End Property
+        Public Property debugfs() As Double
+        Get
+            Return csobj.debugfs
+        End Get
+        Set(ByVal Value As Double)
+            csobj.debugfs = Value
+        End Set
+        End Property
+        Public Property debugff() As Double
+        Get
+            Return csobj.debugff
+        End Get
+        Set(ByVal Value As Double)
+            csobj.debugff = Value
+        End Set
+        End Property
+        Public Property debugdx() As Double
+        Get
+            Return csobj.debugdx
+        End Get
+        Set(ByVal Value As Double)
+            csobj.debugdx = Value
+        End Set
+        End Property
+        Public csobj As alglib.minbleicreport
+    End Class
+
+
+    Public Sub minbleiccreate(ByVal n As Integer, ByVal x() As Double, ByRef state As minbleicstate)
+        Try
+            state = New minbleicstate()
+            alglib.minbleiccreate(n, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleiccreate(ByVal x() As Double, ByRef state As minbleicstate)
+        Try
+            state = New minbleicstate()
+            alglib.minbleiccreate(x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleiccreatef(ByVal n As Integer, ByVal x() As Double, ByVal diffstep As Double, ByRef state As minbleicstate)
+        Try
+            state = New minbleicstate()
+            alglib.minbleiccreatef(n, x, diffstep, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleiccreatef(ByVal x() As Double, ByVal diffstep As Double, ByRef state As minbleicstate)
+        Try
+            state = New minbleicstate()
+            alglib.minbleiccreatef(x, diffstep, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetbc(ByVal state As minbleicstate, ByVal bndl() As Double, ByVal bndu() As Double)
+        Try
+            alglib.minbleicsetbc(state.csobj, bndl, bndu)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetlc(ByVal state As minbleicstate, ByVal c(,) As Double, ByVal ct() As Integer, ByVal k As Integer)
+        Try
+            alglib.minbleicsetlc(state.csobj, c, ct, k)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetlc(ByVal state As minbleicstate, ByVal c(,) As Double, ByVal ct() As Integer)
+        Try
+            alglib.minbleicsetlc(state.csobj, c, ct)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetinnercond(ByVal state As minbleicstate, ByVal epsg As Double, ByVal epsf As Double, ByVal epsx As Double)
+        Try
+            alglib.minbleicsetinnercond(state.csobj, epsg, epsf, epsx)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetoutercond(ByVal state As minbleicstate, ByVal epsx As Double, ByVal epsi As Double)
+        Try
+            alglib.minbleicsetoutercond(state.csobj, epsx, epsi)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetscale(ByVal state As minbleicstate, ByVal s() As Double)
+        Try
+            alglib.minbleicsetscale(state.csobj, s)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetprecdefault(ByVal state As minbleicstate)
+        Try
+            alglib.minbleicsetprecdefault(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetprecdiag(ByVal state As minbleicstate, ByVal d() As Double)
+        Try
+            alglib.minbleicsetprecdiag(state.csobj, d)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetprecscale(ByVal state As minbleicstate)
+        Try
+            alglib.minbleicsetprecscale(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetmaxits(ByVal state As minbleicstate, ByVal maxits As Integer)
+        Try
+            alglib.minbleicsetmaxits(state.csobj, maxits)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetxrep(ByVal state As minbleicstate, ByVal needxrep As Boolean)
+        Try
+            alglib.minbleicsetxrep(state.csobj, needxrep)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetstpmax(ByVal state As minbleicstate, ByVal stpmax As Double)
+        Try
+            alglib.minbleicsetstpmax(state.csobj, stpmax)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Function minbleiciteration(ByVal state As minbleicstate) As Boolean
+        Try
+            minbleiciteration = alglib.minbleiciteration(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Function
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ' This family of functions is used to launcn iterations of nonlinear optimizer
+    ' 
+    ' These functions accept following parameters:
+    '     func    -   callback which calculates function (or merit function)
+    '                 value func at given point x
+    '     grad    -   callback which calculates function (or merit function)
+    '                 value func and gradient grad at given point x
+    '     rep     -   optional callback which is called after each iteration
+    '                 can be null
+    '     obj     -   optional object which is passed to func/grad/hess/jac/rep
+    '                 can be null
+    ' 
+    ' 
+    ' NOTES:
+    ' 
+    ' 1. This function has two different implementations: one which  uses  exact
+    '    (analytical) user-supplied gradient,  and one which uses function value
+    '    only  and  numerically  differentiates  function  in  order  to  obtain
+    '    gradient.
+    ' 
+    '    Depending  on  the  specific  function  used to create optimizer object
+    '    (either  MinBLEICCreate() for analytical gradient or  MinBLEICCreateF()
+    '    for numerical differentiation) you should choose appropriate variant of
+    '    MinBLEICOptimize() - one  which  accepts  function  AND gradient or one
+    '    which accepts function ONLY.
+    ' 
+    '    Be careful to choose variant of MinBLEICOptimize() which corresponds to
+    '    your optimization scheme! Table below lists different  combinations  of
+    '    callback (function/gradient) passed to MinBLEICOptimize()  and specific
+    '    function used to create optimizer.
+    ' 
+    ' 
+    '                      |         USER PASSED TO MinBLEICOptimize()
+    '    CREATED WITH      |  function only   |  function and gradient
+    '    ------------------------------------------------------------
+    '    MinBLEICCreateF() |     work                FAIL
+    '    MinBLEICCreate()  |     FAIL                work
+    ' 
+    '    Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
+    '    function  and  MinBLEICOptimize()  version.   Attemps   to   use   such
+    '    combination (for  example,  to  create optimizer with MinBLEICCreateF()
+    '    and  to  pass  gradient  information  to  MinCGOptimize()) will lead to
+    '    exception being thrown. Either  you  did  not pass gradient when it WAS
+    '    needed or you passed gradient when it was NOT needed.
+    ' 
+    '   -- ALGLIB --
+    '      Copyright 28.11.2010 by Bochkanov Sergey
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Sub minbleicoptimize(ByVal state As minbleicstate, ByVal func As ndimensional_func, ByVal rep As ndimensional_rep, ByVal obj As Object)
+        Dim innerobj As alglib.minbleic.minbleicstate = state.csobj.innerobj
+        If func Is Nothing Then
+            Throw New AlglibException("ALGLIB: error in 'minbleicoptimize()' (func is null)")
+        End If
+        Try
+            While alglib.minbleic.minbleiciteration(innerobj)
+                If innerobj.needf Then
+                    func(innerobj.x,  innerobj.f, obj)
+                    Continue While
+                End If
+                If innerobj.xupdated Then
+                    If rep Isnot Nothing Then
+                        rep(innerobj.x, innerobj.f, obj)
+                    End If
+                    Continue While
+                End If
+                Throw New AlglibException("ALGLIB: error in 'minbleicoptimize' (some derivatives were not provided?)")
+            End While
+        Catch E As alglib.alglibexception
+            Throw New AlglibException(E.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicoptimize(ByVal state As minbleicstate, ByVal grad As ndimensional_grad, ByVal rep As ndimensional_rep, ByVal obj As Object)
+        Dim innerobj As alglib.minbleic.minbleicstate = state.csobj.innerobj
+        If grad Is Nothing Then
+            Throw New AlglibException("ALGLIB: error in 'minbleicoptimize()' (grad is null)")
+        End If
+        Try
+            While alglib.minbleic.minbleiciteration(innerobj)
+                If innerobj.needfg Then
+                    grad(innerobj.x, innerobj.f, innerobj.g, obj)
+                    Continue While
+                End If
+                If innerobj.xupdated Then
+                    If rep Isnot Nothing Then
+                        rep(innerobj.x, innerobj.f, obj)
+                    End If
+                    Continue While
+                End If
+                Throw New AlglibException("ALGLIB: error in 'minbleicoptimize' (some derivatives were not provided?)")
+            End While
+        Catch E As alglib.alglibexception
+            Throw New AlglibException(E.Msg)
+        End Try
+    End Sub
+
+
+
+
+    Public Sub minbleicresults(ByVal state As minbleicstate, ByRef x() As Double, ByRef rep As minbleicreport)
+        Try
+            rep = New minbleicreport()
+            alglib.minbleicresults(state.csobj, x, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicresultsbuf(ByVal state As minbleicstate, ByRef x() As Double, ByRef rep As minbleicreport)
+        Try
+            alglib.minbleicresultsbuf(state.csobj, x, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicrestartfrom(ByVal state As minbleicstate, ByVal x() As Double)
+        Try
+            alglib.minbleicrestartfrom(state.csobj, x)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+    Public Class mcpdstate
+        Public csobj As alglib.mcpdstate
+    End Class
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'This structure is a MCPD training report:
+    '    InnerIterationsCount    -   number of inner iterations of the
+    '                                underlying optimization algorithm
+    '    OuterIterationsCount    -   number of outer iterations of the
+    '                                underlying optimization algorithm
+    '    NFEV                    -   number of merit function evaluations
+    '    TerminationType         -   termination type
+    '                                (same as for MinBLEIC optimizer, positive
+    '                                values denote success, negative ones -
+    '                                failure)
+    '
+    '  -- ALGLIB --
+    '     Copyright 23.05.2010 by Bochkanov Sergey
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Class mcpdreport
+        Public Property inneriterationscount() As Integer
+        Get
+            Return csobj.inneriterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.inneriterationscount = Value
+        End Set
+        End Property
+        Public Property outeriterationscount() As Integer
+        Get
+            Return csobj.outeriterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.outeriterationscount = Value
+        End Set
+        End Property
+        Public Property nfev() As Integer
+        Get
+            Return csobj.nfev
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.nfev = Value
+        End Set
+        End Property
+        Public Property terminationtype() As Integer
+        Get
+            Return csobj.terminationtype
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.terminationtype = Value
+        End Set
+        End Property
+        Public csobj As alglib.mcpdreport
+    End Class
+
+
+    Public Sub mcpdcreate(ByVal n As Integer, ByRef s As mcpdstate)
+        Try
+            s = New mcpdstate()
+            alglib.mcpdcreate(n, s.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdcreateentry(ByVal n As Integer, ByVal entrystate As Integer, ByRef s As mcpdstate)
+        Try
+            s = New mcpdstate()
+            alglib.mcpdcreateentry(n, entrystate, s.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdcreateexit(ByVal n As Integer, ByVal exitstate As Integer, ByRef s As mcpdstate)
+        Try
+            s = New mcpdstate()
+            alglib.mcpdcreateexit(n, exitstate, s.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdcreateentryexit(ByVal n As Integer, ByVal entrystate As Integer, ByVal exitstate As Integer, ByRef s As mcpdstate)
+        Try
+            s = New mcpdstate()
+            alglib.mcpdcreateentryexit(n, entrystate, exitstate, s.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdaddtrack(ByVal s As mcpdstate, ByVal xy(,) As Double, ByVal k As Integer)
+        Try
+            alglib.mcpdaddtrack(s.csobj, xy, k)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdaddtrack(ByVal s As mcpdstate, ByVal xy(,) As Double)
+        Try
+            alglib.mcpdaddtrack(s.csobj, xy)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsetec(ByVal s As mcpdstate, ByVal ec(,) As Double)
+        Try
+            alglib.mcpdsetec(s.csobj, ec)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdaddec(ByVal s As mcpdstate, ByVal i As Integer, ByVal j As Integer, ByVal c As Double)
+        Try
+            alglib.mcpdaddec(s.csobj, i, j, c)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsetbc(ByVal s As mcpdstate, ByVal bndl(,) As Double, ByVal bndu(,) As Double)
+        Try
+            alglib.mcpdsetbc(s.csobj, bndl, bndu)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdaddbc(ByVal s As mcpdstate, ByVal i As Integer, ByVal j As Integer, ByVal bndl As Double, ByVal bndu As Double)
+        Try
+            alglib.mcpdaddbc(s.csobj, i, j, bndl, bndu)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsetlc(ByVal s As mcpdstate, ByVal c(,) As Double, ByVal ct() As Integer, ByVal k As Integer)
+        Try
+            alglib.mcpdsetlc(s.csobj, c, ct, k)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsetlc(ByVal s As mcpdstate, ByVal c(,) As Double, ByVal ct() As Integer)
+        Try
+            alglib.mcpdsetlc(s.csobj, c, ct)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsettikhonovregularizer(ByVal s As mcpdstate, ByVal v As Double)
+        Try
+            alglib.mcpdsettikhonovregularizer(s.csobj, v)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsetprior(ByVal s As mcpdstate, ByVal pp(,) As Double)
+        Try
+            alglib.mcpdsetprior(s.csobj, pp)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsetpredictionweights(ByVal s As mcpdstate, ByVal pw() As Double)
+        Try
+            alglib.mcpdsetpredictionweights(s.csobj, pw)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdsolve(ByVal s As mcpdstate)
+        Try
+            alglib.mcpdsolve(s.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub mcpdresults(ByVal s As mcpdstate, ByRef p(,) As Double, ByRef rep As mcpdreport)
+        Try
+            rep = New mcpdreport()
+            alglib.mcpdresults(s.csobj, p, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
 
 
 
@@ -2881,6 +3930,26 @@ End Class
     End Sub
 
 
+    Public Sub minlbfgscreatef(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByVal diffstep As Double, ByRef state As minlbfgsstate)
+        Try
+            state = New minlbfgsstate()
+            alglib.minlbfgscreatef(n, m, x, diffstep, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlbfgscreatef(ByVal m As Integer, ByVal x() As Double, ByVal diffstep As Double, ByRef state As minlbfgsstate)
+        Try
+            state = New minlbfgsstate()
+            alglib.minlbfgscreatef(m, x, diffstep, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
     Public Sub minlbfgssetcond(ByVal state As minlbfgsstate, ByVal epsg As Double, ByVal epsf As Double, ByVal epsx As Double, ByVal maxits As Integer)
         Try
             alglib.minlbfgssetcond(state.csobj, epsg, epsf, epsx, maxits)
@@ -2908,18 +3977,45 @@ End Class
     End Sub
 
 
-    Public Sub minlbfgssetdefaultpreconditioner(ByVal state As minlbfgsstate)
+    Public Sub minlbfgssetscale(ByVal state As minlbfgsstate, ByVal s() As Double)
         Try
-            alglib.minlbfgssetdefaultpreconditioner(state.csobj)
+            alglib.minlbfgssetscale(state.csobj, s)
         Catch _E_Alglib As alglib.alglibexception
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
     End Sub
 
 
-    Public Sub minlbfgssetcholeskypreconditioner(ByVal state As minlbfgsstate, ByVal p(,) As Double, ByVal isupper As Boolean)
+    Public Sub minlbfgssetprecdefault(ByVal state As minlbfgsstate)
         Try
-            alglib.minlbfgssetcholeskypreconditioner(state.csobj, p, isupper)
+            alglib.minlbfgssetprecdefault(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlbfgssetpreccholesky(ByVal state As minlbfgsstate, ByVal p(,) As Double, ByVal isupper As Boolean)
+        Try
+            alglib.minlbfgssetpreccholesky(state.csobj, p, isupper)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlbfgssetprecdiag(ByVal state As minlbfgsstate, ByVal d() As Double)
+        Try
+            alglib.minlbfgssetprecdiag(state.csobj, d)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlbfgssetprecscale(ByVal state As minlbfgsstate)
+        Try
+            alglib.minlbfgssetprecscale(state.csobj)
         Catch _E_Alglib As alglib.alglibexception
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
@@ -2937,6 +4033,8 @@ End Class
     ' This family of functions is used to launcn iterations of nonlinear optimizer
     ' 
     ' These functions accept following parameters:
+    '     func    -   callback which calculates function (or merit function)
+    '                 value func at given point x
     '     grad    -   callback which calculates function (or merit function)
     '                 value func and gradient grad at given point x
     '     rep     -   optional callback which is called after each iteration
@@ -2945,10 +4043,66 @@ End Class
     '                 can be null
     ' 
     ' 
+    ' NOTES:
+    ' 
+    ' 1. This function has two different implementations: one which  uses  exact
+    '    (analytical) user-supplied gradient,  and one which uses function value
+    '    only  and  numerically  differentiates  function  in  order  to  obtain
+    '    gradient.
+    ' 
+    '    Depending  on  the  specific  function  used to create optimizer object
+    '    (either MinLBFGSCreate() for analytical gradient  or  MinLBFGSCreateF()
+    '    for numerical differentiation) you should choose appropriate variant of
+    '    MinLBFGSOptimize() - one  which  accepts  function  AND gradient or one
+    '    which accepts function ONLY.
+    ' 
+    '    Be careful to choose variant of MinLBFGSOptimize() which corresponds to
+    '    your optimization scheme! Table below lists different  combinations  of
+    '    callback (function/gradient) passed to MinLBFGSOptimize()  and specific
+    '    function used to create optimizer.
+    ' 
+    ' 
+    '                      |         USER PASSED TO MinLBFGSOptimize()
+    '    CREATED WITH      |  function only   |  function and gradient
+    '    ------------------------------------------------------------
+    '    MinLBFGSCreateF() |     work                FAIL
+    '    MinLBFGSCreate()  |     FAIL                work
+    ' 
+    '    Here "FAIL" denotes inappropriate combinations  of  optimizer  creation
+    '    function  and  MinLBFGSOptimize()  version.   Attemps   to   use   such
+    '    combination (for example, to create optimizer with MinLBFGSCreateF() and
+    '    to pass gradient information to MinCGOptimize()) will lead to exception
+    '    being thrown. Either  you  did  not pass gradient when it WAS needed or
+    '    you passed gradient when it was NOT needed.
     ' 
     '   -- ALGLIB --
     '      Copyright 20.03.2009 by Bochkanov Sergey
     ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Sub minlbfgsoptimize(ByVal state As minlbfgsstate, ByVal func As ndimensional_func, ByVal rep As ndimensional_rep, ByVal obj As Object)
+        Dim innerobj As alglib.minlbfgs.minlbfgsstate = state.csobj.innerobj
+        If func Is Nothing Then
+            Throw New AlglibException("ALGLIB: error in 'minlbfgsoptimize()' (func is null)")
+        End If
+        Try
+            While alglib.minlbfgs.minlbfgsiteration(innerobj)
+                If innerobj.needf Then
+                    func(innerobj.x,  innerobj.f, obj)
+                    Continue While
+                End If
+                If innerobj.xupdated Then
+                    If rep Isnot Nothing Then
+                        rep(innerobj.x, innerobj.f, obj)
+                    End If
+                    Continue While
+                End If
+                Throw New AlglibException("ALGLIB: error in 'minlbfgsoptimize' (some derivatives were not provided?)")
+            End While
+        Catch E As alglib.alglibexception
+            Throw New AlglibException(E.Msg)
+        End Try
+    End Sub
+
+
     Public Sub minlbfgsoptimize(ByVal state As minlbfgsstate, ByVal grad As ndimensional_grad, ByVal rep As ndimensional_rep, ByVal obj As Object)
         Dim innerobj As alglib.minlbfgs.minlbfgsstate = state.csobj.innerobj
         If grad Is Nothing Then
@@ -4508,6 +5662,177 @@ End Class
         End Try
     End Function
 
+    Public Class minqpstate
+        Public csobj As alglib.minqpstate
+    End Class
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'This structure stores optimization report:
+    '* InnerIterationsCount      number of inner iterations
+    '* OuterIterationsCount      number of outer iterations
+    '* NCholesky                 number of Cholesky decomposition
+    '* NMV                       number of matrix-vector products
+    '                            (only products calculated as part of iterative
+    '                            process are counted)
+    '* TerminationType           completion code (see below)
+    '
+    'Completion codes:
+    '* -5    inappropriate solver was used:
+    '        * Cholesky solver for semidefinite or indefinite problems
+    '        * Cholesky solver for problems with non-boundary constraints
+    '* -3    inconsistent constraints (or, maybe, feasible point is
+    '        too hard to find). If you are sure that constraints are feasible,
+    '        try to restart optimizer with better initial approximation.
+    '*  4    successful completion
+    '*  5    MaxIts steps was taken
+    '*  7    stopping conditions are too stringent,
+    '        further improvement is impossible,
+    '        X contains best point found so far.
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    Public Class minqpreport
+        Public Property inneriterationscount() As Integer
+        Get
+            Return csobj.inneriterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.inneriterationscount = Value
+        End Set
+        End Property
+        Public Property outeriterationscount() As Integer
+        Get
+            Return csobj.outeriterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.outeriterationscount = Value
+        End Set
+        End Property
+        Public Property nmv() As Integer
+        Get
+            Return csobj.nmv
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.nmv = Value
+        End Set
+        End Property
+        Public Property ncholesky() As Integer
+        Get
+            Return csobj.ncholesky
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.ncholesky = Value
+        End Set
+        End Property
+        Public Property terminationtype() As Integer
+        Get
+            Return csobj.terminationtype
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.terminationtype = Value
+        End Set
+        End Property
+        Public csobj As alglib.minqpreport
+    End Class
+
+
+    Public Sub minqpcreate(ByVal n As Integer, ByRef state As minqpstate)
+        Try
+            state = New minqpstate()
+            alglib.minqpcreate(n, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetlinearterm(ByVal state As minqpstate, ByVal b() As Double)
+        Try
+            alglib.minqpsetlinearterm(state.csobj, b)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetquadraticterm(ByVal state As minqpstate, ByVal a(,) As Double, ByVal isupper As Boolean)
+        Try
+            alglib.minqpsetquadraticterm(state.csobj, a, isupper)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetquadraticterm(ByVal state As minqpstate, ByVal a(,) As Double)
+        Try
+            alglib.minqpsetquadraticterm(state.csobj, a)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetstartingpoint(ByVal state As minqpstate, ByVal x() As Double)
+        Try
+            alglib.minqpsetstartingpoint(state.csobj, x)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetorigin(ByVal state As minqpstate, ByVal xorigin() As Double)
+        Try
+            alglib.minqpsetorigin(state.csobj, xorigin)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetalgocholesky(ByVal state As minqpstate)
+        Try
+            alglib.minqpsetalgocholesky(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpsetbc(ByVal state As minqpstate, ByVal bndl() As Double, ByVal bndu() As Double)
+        Try
+            alglib.minqpsetbc(state.csobj, bndl, bndu)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpoptimize(ByVal state As minqpstate)
+        Try
+            alglib.minqpoptimize(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpresults(ByVal state As minqpstate, ByRef x() As Double, ByRef rep As minqpreport)
+        Try
+            rep = New minqpreport()
+            alglib.minqpresults(state.csobj, x, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minqpresultsbuf(ByVal state As minqpstate, ByRef x() As Double, ByRef rep As minqpreport)
+        Try
+            alglib.minqpresultsbuf(state.csobj, x, rep.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
     Public Class minlmstate
         Public csobj As alglib.minlmstate
     End Class
@@ -4654,66 +5979,6 @@ End Class
     End Sub
 
 
-    Public Sub minlmcreatevgj(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
-        Try
-            state = New minlmstate()
-            alglib.minlmcreatevgj(n, m, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minlmcreatevgj(ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
-        Try
-            state = New minlmstate()
-            alglib.minlmcreatevgj(m, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minlmcreatefgj(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
-        Try
-            state = New minlmstate()
-            alglib.minlmcreatefgj(n, m, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minlmcreatefgj(ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
-        Try
-            state = New minlmstate()
-            alglib.minlmcreatefgj(m, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minlmcreatefj(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
-        Try
-            state = New minlmstate()
-            alglib.minlmcreatefj(n, m, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minlmcreatefj(ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
-        Try
-            state = New minlmstate()
-            alglib.minlmcreatefj(m, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
     Public Sub minlmsetcond(ByVal state As minlmstate, ByVal epsg As Double, ByVal epsf As Double, ByVal epsx As Double, ByVal maxits As Integer)
         Try
             alglib.minlmsetcond(state.csobj, epsg, epsf, epsx, maxits)
@@ -4735,6 +6000,24 @@ End Class
     Public Sub minlmsetstpmax(ByVal state As minlmstate, ByVal stpmax As Double)
         Try
             alglib.minlmsetstpmax(state.csobj, stpmax)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmsetscale(ByVal state As minlmstate, ByVal s() As Double)
+        Try
+            alglib.minlmsetscale(state.csobj, s)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmsetbc(ByVal state As minlmstate, ByVal bndl() As Double, ByVal bndu() As Double)
+        Try
+            alglib.minlmsetbc(state.csobj, bndl, bndu)
         Catch _E_Alglib As alglib.alglibexception
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
@@ -4991,6 +6274,66 @@ End Class
         End Try
     End Sub
 
+
+    Public Sub minlmcreatevgj(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
+        Try
+            state = New minlmstate()
+            alglib.minlmcreatevgj(n, m, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmcreatevgj(ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
+        Try
+            state = New minlmstate()
+            alglib.minlmcreatevgj(m, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmcreatefgj(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
+        Try
+            state = New minlmstate()
+            alglib.minlmcreatefgj(n, m, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmcreatefgj(ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
+        Try
+            state = New minlmstate()
+            alglib.minlmcreatefgj(m, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmcreatefj(ByVal n As Integer, ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
+        Try
+            state = New minlmstate()
+            alglib.minlmcreatefj(n, m, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlmcreatefj(ByVal m As Integer, ByVal x() As Double, ByRef state As minlmstate)
+        Try
+            state = New minlmstate()
+            alglib.minlmcreatefj(m, x, state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
     ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     'Polynomial fitting report:
     '    TaskRCond       reciprocal of task's condition number
@@ -5158,10 +6501,14 @@ End Class
     ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     'Least squares fitting report:
     '    TaskRCond       reciprocal of task's condition number
+    '    IterationsCount number of internal iterations
+    '
     '    RMSError        RMS error
     '    AvgError        average error
     '    AvgRelError     average relative error (for non-zero Y[I])
     '    MaxError        maximum error
+    '
+    '    WRMSError       weighted RMS error
     ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Public Class lsfitreport
         Public Property taskrcond() As Double
@@ -5170,6 +6517,14 @@ End Class
         End Get
         Set(ByVal Value As Double)
             csobj.taskrcond = Value
+        End Set
+        End Property
+        Public Property iterationscount() As Integer
+        Get
+            Return csobj.iterationscount
+        End Get
+        Set(ByVal Value As Integer)
+            csobj.iterationscount = Value
         End Set
         End Property
         Public Property rmserror() As Double
@@ -5202,6 +6557,14 @@ End Class
         End Get
         Set(ByVal Value As Double)
             csobj.maxerror = Value
+        End Set
+        End Property
+        Public Property wrmserror() As Double
+        Get
+            Return csobj.wrmserror
+        End Get
+        Set(ByVal Value As Double)
+            csobj.wrmserror = Value
         End Set
         End Property
         Public csobj As alglib.lsfitreport
@@ -5630,6 +6993,24 @@ End Class
     Public Sub lsfitsetxrep(ByVal state As lsfitstate, ByVal needxrep As Boolean)
         Try
             alglib.lsfitsetxrep(state.csobj, needxrep)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub lsfitsetscale(ByVal state As lsfitstate, ByVal s() As Double)
+        Try
+            alglib.lsfitsetscale(state.csobj, s)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub lsfitsetbc(ByVal state As lsfitstate, ByVal bndl() As Double, ByVal bndu() As Double)
+        Try
+            alglib.lsfitsetbc(state.csobj, bndl, bndu)
         Catch _E_Alglib As alglib.alglibexception
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
@@ -6267,6 +7648,42 @@ End Class
     End Class
 
 
+    Public Sub minlbfgssetdefaultpreconditioner(ByVal state As minlbfgsstate)
+        Try
+            alglib.minlbfgssetdefaultpreconditioner(state.csobj)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minlbfgssetcholeskypreconditioner(ByVal state As minlbfgsstate, ByVal p(,) As Double, ByVal isupper As Boolean)
+        Try
+            alglib.minlbfgssetcholeskypreconditioner(state.csobj, p, isupper)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetbarrierwidth(ByVal state As minbleicstate, ByVal mu As Double)
+        Try
+            alglib.minbleicsetbarrierwidth(state.csobj, mu)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
+    Public Sub minbleicsetbarrierdecay(ByVal state As minbleicstate, ByVal mudecay As Double)
+        Try
+            alglib.minbleicsetbarrierdecay(state.csobj, mudecay)
+        Catch _E_Alglib As alglib.alglibexception
+            Throw New AlglibException(_E_Alglib.Msg)
+        End Try
+    End Sub
+
+
     Public Sub minasacreate(ByVal n As Integer, ByVal x() As Double, ByVal bndl() As Double, ByVal bndu() As Double, ByRef state As minasastate)
         Try
             state = New minasastate()
@@ -6347,12 +7764,12 @@ End Class
     '      Copyright 20.03.2009 by Bochkanov Sergey
     ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Public Sub minasaoptimize(ByVal state As minasastate, ByVal grad As ndimensional_grad, ByVal rep As ndimensional_rep, ByVal obj As Object)
-        Dim innerobj As alglib.minasa.minasastate = state.csobj.innerobj
+        Dim innerobj As alglib.mincomp.minasastate = state.csobj.innerobj
         If grad Is Nothing Then
             Throw New AlglibException("ALGLIB: error in 'minasaoptimize()' (grad is null)")
         End If
         Try
-            While alglib.minasa.minasaiteration(innerobj)
+            While alglib.mincomp.minasaiteration(innerobj)
                 If innerobj.needfg Then
                     grad(innerobj.x, innerobj.f, innerobj.g, obj)
                     Continue While
@@ -6395,455 +7812,6 @@ End Class
     Public Sub minasarestartfrom(ByVal state As minasastate, ByVal x() As Double, ByVal bndl() As Double, ByVal bndu() As Double)
         Try
             alglib.minasarestartfrom(state.csobj, x, bndl, bndu)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-    Public Class mincgstate
-        Public csobj As alglib.mincgstate
-    End Class
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    '
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Public Class mincgreport
-        Public Property iterationscount() As Integer
-        Get
-            Return csobj.iterationscount
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.iterationscount = Value
-        End Set
-        End Property
-        Public Property nfev() As Integer
-        Get
-            Return csobj.nfev
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.nfev = Value
-        End Set
-        End Property
-        Public Property terminationtype() As Integer
-        Get
-            Return csobj.terminationtype
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.terminationtype = Value
-        End Set
-        End Property
-        Public csobj As alglib.mincgreport
-    End Class
-
-
-    Public Sub mincgcreate(ByVal n As Integer, ByVal x() As Double, ByRef state As mincgstate)
-        Try
-            state = New mincgstate()
-            alglib.mincgcreate(n, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgcreate(ByVal x() As Double, ByRef state As mincgstate)
-        Try
-            state = New mincgstate()
-            alglib.mincgcreate(x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgsetcond(ByVal state As mincgstate, ByVal epsg As Double, ByVal epsf As Double, ByVal epsx As Double, ByVal maxits As Integer)
-        Try
-            alglib.mincgsetcond(state.csobj, epsg, epsf, epsx, maxits)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgsetxrep(ByVal state As mincgstate, ByVal needxrep As Boolean)
-        Try
-            alglib.mincgsetxrep(state.csobj, needxrep)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgsetcgtype(ByVal state As mincgstate, ByVal cgtype As Integer)
-        Try
-            alglib.mincgsetcgtype(state.csobj, cgtype)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgsetstpmax(ByVal state As mincgstate, ByVal stpmax As Double)
-        Try
-            alglib.mincgsetstpmax(state.csobj, stpmax)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgsuggeststep(ByVal state As mincgstate, ByVal stp As Double)
-        Try
-            alglib.mincgsuggeststep(state.csobj, stp)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Function mincgiteration(ByVal state As mincgstate) As Boolean
-        Try
-            mincgiteration = alglib.mincgiteration(state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Function
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    ' This family of functions is used to launcn iterations of nonlinear optimizer
-    ' 
-    ' These functions accept following parameters:
-    '     grad    -   callback which calculates function (or merit function)
-    '                 value func and gradient grad at given point x
-    '     rep     -   optional callback which is called after each iteration
-    '                 can be null
-    '     obj     -   optional object which is passed to func/grad/hess/jac/rep
-    '                 can be null
-    ' 
-    ' 
-    ' 
-    '   -- ALGLIB --
-    '      Copyright 20.04.2009 by Bochkanov Sergey
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Public Sub mincgoptimize(ByVal state As mincgstate, ByVal grad As ndimensional_grad, ByVal rep As ndimensional_rep, ByVal obj As Object)
-        Dim innerobj As alglib.mincg.mincgstate = state.csobj.innerobj
-        If grad Is Nothing Then
-            Throw New AlglibException("ALGLIB: error in 'mincgoptimize()' (grad is null)")
-        End If
-        Try
-            While alglib.mincg.mincgiteration(innerobj)
-                If innerobj.needfg Then
-                    grad(innerobj.x, innerobj.f, innerobj.g, obj)
-                    Continue While
-                End If
-                If innerobj.xupdated Then
-                    If rep Isnot Nothing Then
-                        rep(innerobj.x, innerobj.f, obj)
-                    End If
-                    Continue While
-                End If
-                Throw New AlglibException("ALGLIB: error in 'mincgoptimize' (some derivatives were not provided?)")
-            End While
-        Catch E As alglib.alglibexception
-            Throw New AlglibException(E.Msg)
-        End Try
-    End Sub
-
-
-
-
-    Public Sub mincgresults(ByVal state As mincgstate, ByRef x() As Double, ByRef rep As mincgreport)
-        Try
-            rep = New mincgreport()
-            alglib.mincgresults(state.csobj, x, rep.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgresultsbuf(ByVal state As mincgstate, ByRef x() As Double, ByRef rep As mincgreport)
-        Try
-            alglib.mincgresultsbuf(state.csobj, x, rep.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub mincgrestartfrom(ByVal state As mincgstate, ByVal x() As Double)
-        Try
-            alglib.mincgrestartfrom(state.csobj, x)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-    Public Class minbleicstate
-        Public csobj As alglib.minbleicstate
-    End Class
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    'This structure stores optimization report:
-    '* InnerIterationsCount      number of inner iterations
-    '* OuterIterationsCount      number of outer iterations
-    '* NFEV                      number of gradient evaluations
-    '
-    'There are additional fields which can be used for debugging:
-    '* DebugEqErr                error in the equality constraints (2-norm)
-    '* DebugFS                   f, calculated at projection of initial point
-    '                            to the feasible set
-    '* DebugFF                   f, calculated at the final point
-    '* DebugDX                   |X_start-X_final|
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Public Class minbleicreport
-        Public Property inneriterationscount() As Integer
-        Get
-            Return csobj.inneriterationscount
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.inneriterationscount = Value
-        End Set
-        End Property
-        Public Property outeriterationscount() As Integer
-        Get
-            Return csobj.outeriterationscount
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.outeriterationscount = Value
-        End Set
-        End Property
-        Public Property nfev() As Integer
-        Get
-            Return csobj.nfev
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.nfev = Value
-        End Set
-        End Property
-        Public Property terminationtype() As Integer
-        Get
-            Return csobj.terminationtype
-        End Get
-        Set(ByVal Value As Integer)
-            csobj.terminationtype = Value
-        End Set
-        End Property
-        Public Property debugeqerr() As Double
-        Get
-            Return csobj.debugeqerr
-        End Get
-        Set(ByVal Value As Double)
-            csobj.debugeqerr = Value
-        End Set
-        End Property
-        Public Property debugfs() As Double
-        Get
-            Return csobj.debugfs
-        End Get
-        Set(ByVal Value As Double)
-            csobj.debugfs = Value
-        End Set
-        End Property
-        Public Property debugff() As Double
-        Get
-            Return csobj.debugff
-        End Get
-        Set(ByVal Value As Double)
-            csobj.debugff = Value
-        End Set
-        End Property
-        Public Property debugdx() As Double
-        Get
-            Return csobj.debugdx
-        End Get
-        Set(ByVal Value As Double)
-            csobj.debugdx = Value
-        End Set
-        End Property
-        Public csobj As alglib.minbleicreport
-    End Class
-
-
-    Public Sub minbleiccreate(ByVal n As Integer, ByVal x() As Double, ByRef state As minbleicstate)
-        Try
-            state = New minbleicstate()
-            alglib.minbleiccreate(n, x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleiccreate(ByVal x() As Double, ByRef state As minbleicstate)
-        Try
-            state = New minbleicstate()
-            alglib.minbleiccreate(x, state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetbc(ByVal state As minbleicstate, ByVal bndl() As Double, ByVal bndu() As Double)
-        Try
-            alglib.minbleicsetbc(state.csobj, bndl, bndu)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetlc(ByVal state As minbleicstate, ByVal c(,) As Double, ByVal ct() As Integer, ByVal k As Integer)
-        Try
-            alglib.minbleicsetlc(state.csobj, c, ct, k)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetlc(ByVal state As minbleicstate, ByVal c(,) As Double, ByVal ct() As Integer)
-        Try
-            alglib.minbleicsetlc(state.csobj, c, ct)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetinnercond(ByVal state As minbleicstate, ByVal epsg As Double, ByVal epsf As Double, ByVal epsx As Double)
-        Try
-            alglib.minbleicsetinnercond(state.csobj, epsg, epsf, epsx)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetoutercond(ByVal state As minbleicstate, ByVal epsx As Double, ByVal epsi As Double)
-        Try
-            alglib.minbleicsetoutercond(state.csobj, epsx, epsi)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetbarrierwidth(ByVal state As minbleicstate, ByVal mu As Double)
-        Try
-            alglib.minbleicsetbarrierwidth(state.csobj, mu)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetbarrierdecay(ByVal state As minbleicstate, ByVal mudecay As Double)
-        Try
-            alglib.minbleicsetbarrierdecay(state.csobj, mudecay)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetmaxits(ByVal state As minbleicstate, ByVal maxits As Integer)
-        Try
-            alglib.minbleicsetmaxits(state.csobj, maxits)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetxrep(ByVal state As minbleicstate, ByVal needxrep As Boolean)
-        Try
-            alglib.minbleicsetxrep(state.csobj, needxrep)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicsetstpmax(ByVal state As minbleicstate, ByVal stpmax As Double)
-        Try
-            alglib.minbleicsetstpmax(state.csobj, stpmax)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Function minbleiciteration(ByVal state As minbleicstate) As Boolean
-        Try
-            minbleiciteration = alglib.minbleiciteration(state.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Function
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    ' This family of functions is used to launcn iterations of nonlinear optimizer
-    ' 
-    ' These functions accept following parameters:
-    '     grad    -   callback which calculates function (or merit function)
-    '                 value func and gradient grad at given point x
-    '     rep     -   optional callback which is called after each iteration
-    '                 can be null
-    '     obj     -   optional object which is passed to func/grad/hess/jac/rep
-    '                 can be null
-    ' 
-    ' 
-    ' 
-    '   -- ALGLIB --
-    '      Copyright 28.11.2010 by Bochkanov Sergey
-    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Public Sub minbleicoptimize(ByVal state As minbleicstate, ByVal grad As ndimensional_grad, ByVal rep As ndimensional_rep, ByVal obj As Object)
-        Dim innerobj As alglib.minbleic.minbleicstate = state.csobj.innerobj
-        If grad Is Nothing Then
-            Throw New AlglibException("ALGLIB: error in 'minbleicoptimize()' (grad is null)")
-        End If
-        Try
-            While alglib.minbleic.minbleiciteration(innerobj)
-                If innerobj.needfg Then
-                    grad(innerobj.x, innerobj.f, innerobj.g, obj)
-                    Continue While
-                End If
-                If innerobj.xupdated Then
-                    If rep Isnot Nothing Then
-                        rep(innerobj.x, innerobj.f, obj)
-                    End If
-                    Continue While
-                End If
-                Throw New AlglibException("ALGLIB: error in 'minbleicoptimize' (some derivatives were not provided?)")
-            End While
-        Catch E As alglib.alglibexception
-            Throw New AlglibException(E.Msg)
-        End Try
-    End Sub
-
-
-
-
-    Public Sub minbleicresults(ByVal state As minbleicstate, ByRef x() As Double, ByRef rep As minbleicreport)
-        Try
-            rep = New minbleicreport()
-            alglib.minbleicresults(state.csobj, x, rep.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicresultsbuf(ByVal state As minbleicstate, ByRef x() As Double, ByRef rep As minbleicreport)
-        Try
-            alglib.minbleicresultsbuf(state.csobj, x, rep.csobj)
-        Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.Msg)
-        End Try
-    End Sub
-
-
-    Public Sub minbleicrestartfrom(ByVal state As minbleicstate, ByVal x() As Double)
-        Try
-            alglib.minbleicrestartfrom(state.csobj, x)
         Catch _E_Alglib As alglib.alglibexception
             Throw New AlglibException(_E_Alglib.Msg)
         End Try
@@ -7240,9 +8208,9 @@ End Class
 
     Public Function chisquaredistribution(ByVal v As Double, ByVal x As Double) As Double
         Try
-            Return alglib.chisquaredistribution(v, x)
+            chisquaredistribution = alglib.chisquaredistribution(v, x)
         Catch _E_Alglib As alglib.alglibexception
-            'Throw New AlglibException(_E_Alglib.msg)
+            Throw New AlglibException(_E_Alglib.Msg)
         End Try
     End Function
 
@@ -7251,7 +8219,7 @@ End Class
         Try
             chisquarecdistribution = alglib.chisquarecdistribution(v, x)
         Catch _E_Alglib As alglib.alglibexception
-            Throw New AlglibException(_E_Alglib.msg)
+            Throw New AlglibException(_E_Alglib.Msg)
         End Try
     End Function
 

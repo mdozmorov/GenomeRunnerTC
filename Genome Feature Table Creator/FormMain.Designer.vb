@@ -55,6 +55,8 @@ Partial Class FormMain
         Me.btnExonTable = New System.Windows.Forms.Button()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.SaveFD = New System.Windows.Forms.SaveFileDialog()
+        Me.txtUcscdb = New System.Windows.Forms.TextBox()
+        Me.Label7 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
@@ -64,7 +66,7 @@ Partial Class FormMain
         Me.txtUser.Location = New System.Drawing.Point(61, 58)
         Me.txtUser.Name = "txtUser"
         Me.txtUser.Size = New System.Drawing.Size(117, 20)
-        Me.txtUser.TabIndex = 2
+        Me.txtUser.TabIndex = 3
         Me.txtUser.Text = "root"
         '
         'txtHost
@@ -72,7 +74,7 @@ Partial Class FormMain
         Me.txtHost.Location = New System.Drawing.Point(61, 6)
         Me.txtHost.Name = "txtHost"
         Me.txtHost.Size = New System.Drawing.Size(117, 20)
-        Me.txtHost.TabIndex = 4
+        Me.txtHost.TabIndex = 1
         Me.txtHost.Text = "localhost"
         '
         'Label1
@@ -107,7 +109,7 @@ Partial Class FormMain
         Me.txtDatabase.Location = New System.Drawing.Point(61, 32)
         Me.txtDatabase.Name = "txtDatabase"
         Me.txtDatabase.Size = New System.Drawing.Size(117, 20)
-        Me.txtDatabase.TabIndex = 8
+        Me.txtDatabase.TabIndex = 2
         Me.txtDatabase.Text = "hg18test"
         '
         'Label4
@@ -121,16 +123,16 @@ Partial Class FormMain
         '
         'btnConnect
         '
-        Me.btnConnect.Location = New System.Drawing.Point(61, 110)
+        Me.btnConnect.Location = New System.Drawing.Point(61, 136)
         Me.btnConnect.Name = "btnConnect"
         Me.btnConnect.Size = New System.Drawing.Size(117, 23)
-        Me.btnConnect.TabIndex = 10
+        Me.btnConnect.TabIndex = 6
         Me.btnConnect.Text = "Connect"
         Me.btnConnect.UseVisualStyleBackColor = True
         '
         'ProgressBar1
         '
-        Me.ProgressBar1.Location = New System.Drawing.Point(9, 373)
+        Me.ProgressBar1.Location = New System.Drawing.Point(14, 398)
         Me.ProgressBar1.Margin = New System.Windows.Forms.Padding(2)
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(489, 19)
@@ -139,7 +141,7 @@ Partial Class FormMain
         'lblProgress
         '
         Me.lblProgress.AutoSize = True
-        Me.lblProgress.Location = New System.Drawing.Point(6, 358)
+        Me.lblProgress.Location = New System.Drawing.Point(11, 383)
         Me.lblProgress.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.lblProgress.Name = "lblProgress"
         Me.lblProgress.Size = New System.Drawing.Size(66, 13)
@@ -159,7 +161,7 @@ Partial Class FormMain
         '
         'btnReloadFeatures
         '
-        Me.btnReloadFeatures.Location = New System.Drawing.Point(61, 139)
+        Me.btnReloadFeatures.Location = New System.Drawing.Point(61, 165)
         Me.btnReloadFeatures.Name = "btnReloadFeatures"
         Me.btnReloadFeatures.Size = New System.Drawing.Size(117, 23)
         Me.btnReloadFeatures.TabIndex = 38
@@ -210,7 +212,7 @@ Partial Class FormMain
         Me.txtPassword.Name = "txtPassword"
         Me.txtPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
         Me.txtPassword.Size = New System.Drawing.Size(117, 20)
-        Me.txtPassword.TabIndex = 3
+        Me.txtPassword.TabIndex = 4
         Me.txtPassword.Text = "gamma123"
         '
         'btnLoadList
@@ -288,7 +290,7 @@ Partial Class FormMain
         Me.GroupBox2.Controls.Add(Me.btnGenerateBedFile)
         Me.GroupBox2.Controls.Add(Me.btnGenerateBackground)
         Me.GroupBox2.Controls.Add(Me.btnExonTable)
-        Me.GroupBox2.Location = New System.Drawing.Point(9, 182)
+        Me.GroupBox2.Location = New System.Drawing.Point(14, 207)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(210, 173)
         Me.GroupBox2.TabIndex = 57
@@ -348,11 +350,30 @@ Partial Class FormMain
         Me.ToolTip1.SetToolTip(Me.btnExonTable, "Generates an exon table from the KnownGene table in the mysql database")
         Me.btnExonTable.UseVisualStyleBackColor = True
         '
+        'txtUcscdb
+        '
+        Me.txtUcscdb.Location = New System.Drawing.Point(61, 110)
+        Me.txtUcscdb.Name = "txtUcscdb"
+        Me.txtUcscdb.Size = New System.Drawing.Size(117, 20)
+        Me.txtUcscdb.TabIndex = 5
+        Me.txtUcscdb.Text = "hg19"
+        '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.Location = New System.Drawing.Point(4, 113)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(51, 13)
+        Me.Label7.TabIndex = 59
+        Me.Label7.Text = "UCSC db"
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(909, 403)
+        Me.ClientSize = New System.Drawing.Size(909, 427)
+        Me.Controls.Add(Me.Label7)
+        Me.Controls.Add(Me.txtUcscdb)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.Label6)
@@ -415,5 +436,7 @@ Partial Class FormMain
     Friend WithEvents SaveFD As System.Windows.Forms.SaveFileDialog
     Friend WithEvents btnStatistics As System.Windows.Forms.Button
     Friend WithEvents btnGetCountofBasePairsCovered As System.Windows.Forms.Button
+    Friend WithEvents txtUcscdb As System.Windows.Forms.TextBox
+    Friend WithEvents Label7 As System.Windows.Forms.Label
 
 End Class

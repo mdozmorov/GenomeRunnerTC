@@ -8,7 +8,7 @@ Public Class FormMain
     Dim listGRFeatures As List(Of Feature) 'used to store feature values that are retrieved from the database
     Dim cn As MySqlConnection, cmd As MySqlCommand, dr As MySqlDataReader, cmd1 As MySqlCommand, dr1 As MySqlDataReader
     Dim featuresSelected As New ArrayList 'stores the features that are selected in the list box
-    Dim ftpHost As String = "ftp://hgdownload.cse.ucsc.edu/goldenPath/hg18/database/", ftpUser As String = "anonymous", ftpPassword As String = ""
+    Dim ftpHost As String, ftpUser As String = "anonymous", ftpPassword As String = "" 'ftpHost will be set in OpenDatabase() using field from user
     Dim uName As String = "", uServer As String = "", uPassword As String = "", uDatabase As String = ""
     Dim arrayFeaturesToAdd As New ArrayList, arrayFeaturesAdded As New ArrayList, arrayFeaturesToRemove As New ArrayList, arrayFeaturesEmpty As New ArrayList, arrayFeaturesNotAddedSuccessfully As New ArrayList 'array of features to be added
     Dim fileName As String, numOfFeaturesToAdd As Integer = 0, progress As Integer = 1 'stores the value of the progress bar
@@ -24,7 +24,11 @@ Public Class FormMain
         btnGenerateBackground.Enabled = True
         listFeaturesToAdd.Items.Clear() 'clears the list
         OpenDatabase()
-        GetFeaturesAvailableList() 'gets list of features that can be added
+        'RP: Commented out this next line b/c it should use DownloadFeatureList() first;
+        '    otherwise it's just using a previously saved file that doesn't necessarily
+        '    correspond to the currently selected UCSC database.
+        '    For now this is handled when the user clicks "Update Features List".
+        'GetFeaturesAvailableList() 'gets list of features that can be added
         GetAddedFeatures() 'loads the table names of features added to list
         GetEmptyFeatures() 'checks for features in the db that are empty
         syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
@@ -36,8 +40,11 @@ Public Class FormMain
         Dim uServer As String = txtHost.Text
         Dim uPassword As String = txtPassword.Text
         Dim uDatabase As String = txtDatabase.Text
+        Dim uUcscDatabaseName As String = txtUcscdb.Text
+
         ' If uName <> "" And uPassword <> "" And uServer <> "" And uDatabase <> "" Then
         ConnectionString = "Server=" & uServer & ";Database=" & uDatabase & ";User ID=" & uName & ";Password=" & uPassword & ";Connection Timeout=6000;" 'uses the values provided by user to create constring. TODO add error checking
+        ftpHost = "ftp://hgdownload.cse.ucsc.edu/goldenPath/" & uUcscDatabaseName & "/database/"
         ' Else
         ' ConnectionString = "Server=VM-Wren-01;Database=hg18;User ID=Genome;Password=Runner"
         ' End If
@@ -60,6 +67,7 @@ Public Class FormMain
 
     'gets the feature list that is saved locally 
     Private Sub GetFeaturesAvailableList()
+        'listFeaturesAvailable.Items.Clear() RP this empties out old crap
         Dim Path As String = System.AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\FeatureList.txt"
         Dim sr As New StreamReader(Path)
         Dim fList() As String = Split(sr.ReadToEnd(), vbCrLf)
@@ -228,11 +236,11 @@ Public Class FormMain
         Try
             If File.Exists(AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".sql") = False Then
                 lblProgress.Text = "Downloading " & feature & ".sql" : Application.DoEvents()
-                My.Computer.Network.DownloadFile("ftp://hgdownload.cse.ucsc.edu/goldenPath/hg18/database/" & feature & ".sql", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".sql") 'downloads the .sql feature file
+                My.Computer.Network.DownloadFile(ftpHost & feature & ".sql", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".sql") 'downloads the .sql feature file
             End If
             If File.Exists(AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".txt.gz") = False Then
                 lblProgress.Text = "Downloading " & feature & ".txt.gz" : Application.DoEvents()
-                My.Computer.Network.DownloadFile("ftp://hgdownload.cse.ucsc.edu/goldenPath/hg18/database/" & feature & ".txt.gz", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".txt.gz") 'downloads the .txt.gz feature file
+                My.Computer.Network.DownloadFile(ftpHost & feature & ".txt.gz", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".txt.gz") 'downloads the .txt.gz feature file
 
             End If
             'decompresses the .gz file to a .txt file
@@ -481,7 +489,8 @@ End_Loop:
         For x As Integer = 0 To arrayFeaturesEmpty.Count - 1 Step +1
             lblProgress.Text = "Loading data for " & arrayFeaturesEmpty(x) : Application.DoEvents()
             PopulateDatabse(arrayFeaturesEmpty(x))
-            ProgressBar1.Value += 1
+            'TODO Now generate exon table if table is of correct format. (it has exonStarts & exonEnds columns)
+            'ProgressBar1.Value += 1
         Next
         GetEmptyFeatures()
         lblProgress.Text = "Done"
@@ -540,7 +549,7 @@ End_Loop:
                 Features.Add(feature)
             End While
             cmd.Dispose() : cn.Close() : dr.Close()
-            SetGenomeBackgroundHG18()
+            SetGenomeBackground()
             SetRandFeatureInterval1(Features.Count - 1)
             AddRandomToDatabase()
             lblProgress.Text = "Done"
@@ -550,7 +559,7 @@ End_Loop:
         End If
     End Sub
 
-    Public Sub SetGenomeBackgroundHG18()
+    Public Sub SetGenomeBackground()
         Dim bkgChr As String(), bkgStart As Integer(), bkgEnd As Integer(),
         bkgNum = 24 : ReDim bkgChr(bkgNum) : ReDim bkgStart(bkgNum) : ReDim bkgEnd(bkgNum) : backgroundFeatures.Clear()  'prepares the arrays and clears the backgroundfeatuers list
         bkgChr = {"chr1", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr2", "chr20", "chr21", "chr22", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chrM", "chrX", "chrY"}
@@ -562,7 +571,7 @@ End_Loop:
             feature.Chrom = bkgChr(i)
             feature.ChromStart = bkgStart(i)
             feature.ChromEnd = bkgEnd(i)
-            BackgroundFeatures.Add(feature)
+            backgroundFeatures.Add(feature)
         Next
 
     End Sub
@@ -757,6 +766,18 @@ End_Loop:
             End Using
             lblProgress.Text = currTableIndex
         Next
+    End Sub
+
+    Private Sub txtPassword_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtPassword.TextChanged
+
+    End Sub
+
+    Private Sub txtHost_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtHost.TextChanged
+
+    End Sub
+
+    Private Sub listFeaturesToAdd_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles listFeaturesToAdd.SelectedIndexChanged
+
     End Sub
 End Class
 
