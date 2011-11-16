@@ -10,7 +10,7 @@ Public Class FormMain
     Dim featuresSelected As New ArrayList 'stores the features that are selected in the list box
     Dim ftpHost As String, ftpUser As String = "anonymous", ftpPassword As String = "" 'ftpHost will be set in OpenDatabase() using field from user
     Dim uName As String = "", uServer As String = "", uPassword As String = "", uDatabase As String = ""
-    Dim arrayFeaturesToAdd As New ArrayList, arrayFeaturesAdded As New ArrayList, arrayFeaturesToRemove As New ArrayList, arrayFeaturesEmpty As New ArrayList, arrayFeaturesNotAddedSuccessfully As New ArrayList 'array of features to be added
+    Dim arrayFeaturesToAdd As New ArrayList, arrayFeaturesAdded As New ArrayList, arrayFeaturesToRemove As New ArrayList, arrayFeaturesEmpty As New ArrayList, arrayFeaturesToUpdate As New ArrayList, arrayFeaturesNearlyUpToDate As New ArrayList, arrayFeaturesNotAddedSuccessfully As New ArrayList 'array of features to be added
     Dim fileName As String, numOfFeaturesToAdd As Integer = 0, progress As Integer = 1 'stores the value of the progress bar
     Dim ConnectionString As String
     Dim Features As New List(Of Feature)
@@ -43,7 +43,7 @@ Public Class FormMain
         Dim uUcscDatabaseName As String = txtUcscdb.Text
 
         ' If uName <> "" And uPassword <> "" And uServer <> "" And uDatabase <> "" Then
-        ConnectionString = "Server=" & uServer & ";Database=" & uDatabase & ";User ID=" & uName & ";Password=" & uPassword & ";Connection Timeout=6000;" 'uses the values provided by user to create constring. TODO add error checking
+        ConnectionString = "Server=" & uServer & ";Database=" & uDatabase & ";User ID=" & uName & ";Password=" & uPassword & ";Connection Timeout=6000;default command timeout=600" 'uses the values provided by user to create constring. TODO add error checking
         ftpHost = "ftp://hgdownload.cse.ucsc.edu/goldenPath/" & uUcscDatabaseName & "/database/"
         ' Else
         ' ConnectionString = "Server=VM-Wren-01;Database=hg18;User ID=Genome;Password=Runner"
@@ -189,6 +189,7 @@ Public Class FormMain
     Private Sub GetAddedFeatures()
         OpenDatabase()
         arrayFeaturesAdded.Clear()
+        arrayFeaturesToUpdate.Clear()
         listFeaturesToAdd.Items.Clear()
         Try
             cmd = New MySqlCommand("SELECT featuretable FROM genomerunner", cn)
@@ -319,11 +320,33 @@ Public Class FormMain
         End If
 End_Loop:
     End Sub
+
     Private Sub PopulateDatabse(ByVal feature As String)
         OpenDatabase()
+
+        '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        'Need to query extra data if this table's genomerunner entry has 'Threshold' as it's QueryType
+        Dim thresholdType As String = ""
+        Dim thresholdQuery As String = ""
+        cmd = New MySqlCommand("SELECT QueryType, ThresholdType FROM genomerunner WHERE FeatureTable = '" & feature & "';", cn)
+        dr = cmd.ExecuteReader
+        While dr.Read
+            If dr(0) = "Threshold" Then
+                thresholdType = dr(1)
+                thresholdQuery = ", thresholdMin = (SELECT MIN(" & thresholdType & ") from " & feature & _
+                                 "), thresholdMax = (SELECT MAX(" & thresholdType & ") from " & feature & _
+                                 "), thresholdMean = (SELECT AVG(" & thresholdType & ") from " & feature & ")"
+            End If
+        End While
+        dr.Close()
+        cmd.Dispose()
+
+        '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        'Populate
         Dim filePathFeaturesToAdd = AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\"
         Dim filePathFeatureToAddUNIX As String = filePathFeaturesToAdd.Replace("\", "/") 'modifies the filepath to conform to UNIX 
-        Dim query As String = "LOAD DATA LOCAL INFILE " & "'" & filePathFeatureToAddUNIX & feature & ".txt' INTO TABLE " & feature
+        Dim query As String = "LOAD DATA LOCAL INFILE " & "'" & filePathFeatureToAddUNIX & feature & ".txt' INTO TABLE " & feature & ";" & _
+                              "UPDATE genomerunner SET count = (SELECT COUNT(*) FROM " & feature & ")" & thresholdQuery & " WHERE FeatureTable = '" & feature & "';"
         Try
             cmd = New MySqlCommand(query, cn) 'reads the .txt file and inserts the data into the created table
             cmd.ExecuteNonQuery()
@@ -333,8 +356,128 @@ End_Loop:
             form.ShowDialog()
 
         End Try
+        cmd.Dispose() : cn.Close() : dr.Close()
+    End Sub
+
+    Private Sub CreateExonTable(ByVal feature As String)
+        Dim exons As List(Of Exon)
+        OpenDatabase()
+        cmd = New MySqlCommand("SELECT QueryType FROM genomerunner WHERE FeatureTable = '" & feature & "';", cn)
+        dr = cmd.ExecuteReader
+        dr.Read()
+        Dim queryType = dr(0)
+        cmd.Dispose() : dr.Close()
+        'Creating exon table is only necessary if queryType = "Gene"
+        If queryType = "Gene" Then
+            exons = GetExons(feature)
+            CreateTableFromExons(feature, exons)
+        End If
         cn.Close()
     End Sub
+
+    Private Function GetExons(ByVal feature As String) As List(Of Exon)
+        Dim exons As New List(Of Exon)
+        cmd = New MySqlCommand("SELECT name,chrom,strand,txStart,txEnd,exonStarts,exonEnds FROM " & feature, cn)
+        dr = cmd.ExecuteReader()
+        If dr.HasRows Then
+            While dr.Read()
+                Dim nexon As New Exon
+                nexon.name = dr(0)
+                nexon.chrom = dr(1)
+                nexon.strand = dr(2)
+                nexon.txStart = dr(3)
+                nexon.txEnd = dr(4)
+                nexon.exonStart = dr(5)
+                nexon.exonEnd = dr(6)
+                'initilizes the lists
+                nexon.listExonStart = New List(Of Integer)
+                nexon.listExonEnd = New List(Of Integer)
+                nexon.listName = New List(Of String)
+                nexon.listChrom = New List(Of String)
+                nexon.listStrand = New List(Of String)
+                nexon.listTxEnd = New List(Of Integer)
+                nexon.listTxStart = New List(Of Integer)
+                exons.Add(nexon)
+            End While
+        End If
+        cn.Close() : cmd.Dispose()
+
+        '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        'Now split up data in exons
+        For Each currExon In exons
+
+            Dim exoncoordinates As String()
+            'populates the exonstarts list
+            exoncoordinates = Split(currExon.exonStart, ",")
+            'converts the array items from a integer to a string and adds them to the array
+            For x As Integer = 0 To exoncoordinates.Count - 1
+                If IsNumeric(exoncoordinates(x)) = True Then : currExon.listExonStart.Add((CInt(exoncoordinates(x)))) : End If
+            Next
+
+            exoncoordinates = Split(currExon.exonEnd, ",")
+            'converts the array items from a integer to a string and adds them to the array as well as populates the name, txstart, and txend array
+            For x As Integer = 0 To exoncoordinates.Count - 1
+                If IsNumeric(exoncoordinates(x)) = True Then
+                    currExon.listExonEnd.Add((CInt(exoncoordinates(x))))
+                    'currExon.listName.Add(ConvertGeneName(currExon.name)) 'inputs the genename into the ConvertGeneName which returns the converted gene name from the database SLOW
+                    currExon.listName.Add(currExon.name)
+                    currExon.listChrom.Add(currExon.chrom)
+                    currExon.listStrand.Add(currExon.strand)
+                    currExon.listTxStart.Add(currExon.txStart)
+                    currExon.listTxEnd.Add(currExon.txEnd)
+                End If
+            Next
+        Next
+        Return exons
+    End Function
+
+    Private Sub CreateTableFromExons(ByVal feature As String, ByVal exons As List(Of Exon))
+        ProgressBar1.Maximum = exons.Count
+        ProgressBar1.Value = 0
+        Dim filepath = Application.StartupPath & "\ExonData.txt"
+        'writes the exon data to a .txt file so that it can quickly be imported into that database
+        lblProgress.Text = "Writting exon data to text file for quick import into database"
+        Using writer As New StreamWriter(filepath, False)
+            For Each currexon In exons
+                For x As Integer = 0 To currexon.listExonStart.Count - 1 Step +1
+                    writer.WriteLine(currexon.listName(x) & vbTab & currexon.listChrom(x) & vbTab & currexon.listStrand(x) & vbTab & currexon.listTxStart(x) & vbTab & currexon.listTxEnd(x) & vbTab & currexon.listExonStart(x) & vbTab & currexon.listExonEnd(x))
+                Next
+                writer.Flush()
+            Next
+        End Using
+
+        'creates a new table
+        lblProgress.Text = "Creating new table called " & feature & "Exons" : Application.DoEvents()
+        OpenDatabase()
+        cmd = New MySqlCommand("DROP TABLE IF EXISTS " & feature & "Exons; CREATE  TABLE `" & feature & "Exons` (`name` VARCHAR(50) NULL , `chrom` VARCHAR(45) NULL, `strand` VARCHAR(45) NULL ,  `txStart` INT NULL ,  `txEnd` INT NULL ,  `exonStart` INT NULL ,  `exonEnd` INT NULL); ", cn)
+        cmd.ExecuteNonQuery()
+        cmd.Dispose()
+        cn.Close() : dr.Close()
+
+        'reads the data in the text file into the new exon table
+        Dim query As String = ""
+        lblProgress.Text = "Creating new table called " & feature & "Exon" : Application.DoEvents()
+        Try
+            'clears all data that might have existed in the Exon table
+            OpenDatabase()
+            query = "TRUNCATE TABLE " & feature & "Exons;"
+            cmd = New MySqlCommand(query, cn)
+            cmd.ExecuteNonQuery()
+            cmd.Dispose() : cn.Close() : dr.Close()
+            OpenDatabase()
+            'loads the new data into the exon table
+            Dim filePathFeatureToAddUNIX As String = filepath.Replace("\", "/") 'modifies the filepath to conform to UNIX
+            query = "LOAD DATA LOCAL INFILE " & "'" & filePathFeatureToAddUNIX & "' INTO TABLE " & feature & "Exons;"
+            cmd = New MySqlCommand(query, cn)
+            cmd.ExecuteNonQuery()
+            cmd.Dispose() : cn.Close() : dr.Close()
+        Catch
+            Dim form As New FormQuery
+            form.txtQuery.Text = query
+            form.ShowDialog()
+        End Try
+    End Sub
+
     'removes features from the database
     Private Sub RemoveFeatures(ByVal feature As String)
         OpenDatabase()
@@ -348,11 +491,16 @@ End_Loop:
     Private Sub listFeaturesToAdd_DrawItem(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DrawItemEventArgs) Handles listFeaturesToAdd.DrawItem
         e.DrawBackground()
         'changes the color of the list items
+        'TODO add light green for existing items that need to be updated. Use arrayFeaturesToUpdate
         e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Black, e.Bounds, StringFormat.GenericDefault)
         If arrayFeaturesToAdd.IndexOf(listFeaturesToAdd.Items.Item(e.Index)) <> -1 Then 'searches if the feature in the list of features in the db is in the array of feastures to add
             e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.BlueViolet, e.Bounds, StringFormat.GenericDefault) 'paints the text green
         ElseIf arrayFeaturesToRemove.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then 'searches if the feature in the list of features from thd db is in the list of feature to remove
             e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Red, e.Bounds, StringFormat.GenericDefault) 'paints the text red
+        ElseIf arrayFeaturesToUpdate.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then 'searches if the feature in the list of features from thd db is in the list of feature to update
+            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.LightGreen, e.Bounds, StringFormat.GenericDefault) 'paints the text light green
+        ElseIf arrayFeaturesNearlyUpToDate.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then
+            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Blue, e.Bounds, StringFormat.GenericDefault) 'paints the text light green
         End If
         If arrayFeaturesEmpty.IndexOf(listFeaturesToAdd.Items.Item(e.Index)) <> -1 Then
             e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Orange, e.Bounds, StringFormat.GenericDefault)
@@ -451,10 +599,14 @@ End_Loop:
     End Sub
 
     Private Sub btnPrepareFiles_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrepareFiles.Click
-        ProgressBar1.Maximum = arrayFeaturesToAdd.Count
+        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count
         ProgressBar1.Value = 0
-        For x As Integer = 0 To arrayFeaturesToAdd.Count - 1 Step +1
-            PrepareFeatures(arrayFeaturesToAdd(x))
+        For Each featureToAdd In arrayFeaturesToAdd
+            PrepareFeatures(featureToAdd)
+            ProgressBar1.Value += 1
+        Next
+        For Each featureToUpdate In arrayFeaturesToUpdate
+            PrepareFeatures(featureToUpdate)
             ProgressBar1.Value += 1
         Next
         lblProgress.Text = "Done"
@@ -463,14 +615,19 @@ End_Loop:
     End Sub
 
     Private Sub btnCreateTables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCreateTables.Click
-        ProgressBar1.Maximum = arrayFeaturesToAdd.Count
+        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count
         ProgressBar1.Value = 0
         Dim arrayAddedSuccessfully As New ArrayList
-        For x As Integer = 0 To arrayFeaturesToAdd.Count - 1 Step +1
-            AddFeaturesToDatabase(arrayFeaturesToAdd(x))  'runs the .sql query 
+        For Each featureToAdd In arrayFeaturesToAdd
+            AddFeaturesToDatabase(featureToAdd)  'runs the .sql query 
             ProgressBar1.Value += 1
         Next
-        arrayFeaturesToAdd.Clear() 'clears the array of features to add
+        For Each featureToUpdate In arrayFeaturesToUpdate
+            AddFeaturesToDatabase(featureToUpdate)  'runs the .sql query 
+            ProgressBar1.Value += 1
+        Next
+        arrayFeaturesToAdd.Clear()
+        arrayFeaturesToUpdate.Clear()
         For Each feature In arrayFeaturesNotAddedSuccessfully 're-adds all of the features not successfully added to the array of features to add
             arrayFeaturesToAdd.Add(feature)
         Next
@@ -486,11 +643,10 @@ End_Loop:
         ProgressBar1.Maximum = arrayFeaturesEmpty.Count
         ProgressBar1.Value = 0
         GetEmptyFeatures()
-        For x As Integer = 0 To arrayFeaturesEmpty.Count - 1 Step +1
-            lblProgress.Text = "Loading data for " & arrayFeaturesEmpty(x) : Application.DoEvents()
-            PopulateDatabse(arrayFeaturesEmpty(x))
-            'TODO Now generate exon table if table is of correct format. (it has exonStarts & exonEnds columns)
-            'ProgressBar1.Value += 1
+        For Each emptyFeature In arrayFeaturesEmpty
+            lblProgress.Text = "Loading data for " & emptyFeature : Application.DoEvents()
+            PopulateDatabse(emptyFeature)
+            CreateExonTable(emptyFeature)
         Next
         GetEmptyFeatures()
         lblProgress.Text = "Done"
@@ -768,20 +924,214 @@ End_Loop:
         Next
     End Sub
 
-    Private Sub txtPassword_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtPassword.TextChanged
+    Private Sub btnCompareToUCSC_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCompareToUCSC.Click
+        
+        'NOTE: This command will get row count for each table in the selected database.
+        '"SELECT table_name, TABLE_ROWS FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'mm9test';"
+        'UCSC db info:
+        'mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A
 
+        Dim tableNamesForUCSCQuery As New List(Of String)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        'Row count from local genomerunner
+        Dim localTablesToCounts As New Hashtable 'key is FeatureTable, value is count
+        OpenDatabase()
+        cmd = New MySqlCommand("SELECT featureTable, count FROM genomerunner;", cn)
+        dr = cmd.ExecuteReader
+        While dr.Read
+            localTablesToCounts.Add(dr(0), dr(1))
+            lblProgress.Text = "Reading local table: " & dr(0) : Application.DoEvents()
+            tableNamesForUCSCQuery.Add("'" & dr(0) & "'")
+            'TODO asynchronous?
+        End While
+        cmd.Dispose()
+        dr.Close()
+
+        'establish connection with UCSC database
+        Dim ucscCn As MySqlConnection, ucscCmd As MySqlCommand, ucscDr As MySqlDataReader
+        ucscCn = New MySqlConnection("Server=genome-mysql.cse.ucsc.edu" & ";Database=" & txtUcscdb.Text & ";User=genomep; Password=password;Connection Timeout=6000;default command timeout=600") : ucscCn.Open()
+        ucscCmd = New MySqlCommand("SELECT table_name, TABLE_ROWS FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" & txtUcscdb.Text & "' AND table_name IN (" & Join(tableNamesForUCSCQuery.ToArray, ",") & ");", ucscCn)
+        ucscDr = ucscCmd.ExecuteReader()
+
+        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        'Row count from UCSC
+        Dim ucscTablesToCounts As New Hashtable 'key is table_name, value is rows in table
+        'column names in the results:
+        'table_name, TABLE_ROWS
+        While ucscDr.Read()
+            ucscTablesToCounts.Add(ucscDr(0), ucscDr(1))
+            'TODO asynchronous?
+            lblProgress.Text = "Reading UCSC table: " & ucscDr(0) : Application.DoEvents()
+        End While
+        ucscCmd.Dispose()
+        ucscDr.Close()
+
+
+
+        'Now look compare results with genomerunner table.
+        For Each tableName In localTablesToCounts.Keys
+            'If String.Compare(localTablesToCounts(tableName), ucscTablesToCounts(tableName), True) Then 'comparison will ignore case
+            If localTablesToCounts(tableName) <> ucscTablesToCounts(tableName) Then
+                'BEWARE: differences in lower/upper case could be an issue here.
+                arrayFeaturesAdded.Remove(tableName)
+                If (Math.Abs(ucscTablesToCounts(tableName) - localTablesToCounts(tableName)) \ ucscTablesToCounts(tableName)) <= 0.1 Then
+                    arrayFeaturesNearlyUpToDate.Add(tableName)
+                Else
+                    arrayFeaturesToUpdate.Add(tableName)
+                End If
+            End If
+        Next
+        cn.Close()
+        lblProgress.Text = "Done" : Application.DoEvents()
+        GetAddedFeatures()
     End Sub
 
-    Private Sub txtHost_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtHost.TextChanged
+    Private Sub btnLoadGRTable_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnLoadGRTable.Click
+        If MessageBox.Show("This will drop current genomerunner table. Are you sure you want to continue?", "Confirm", _
+                           MessageBoxButtons.OKCancel) = DialogResult.OK Then
+            arrayFeaturesToAdd.Clear() 'clears the lsit of feature to add in order to avoid duplicates
+            Dim OpenFD As New OpenFileDialog
+            OpenFD.Title = "Select a tab delimited .txt file with list of features to be imported to genomerunner table."
+            OpenFD.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+            OpenFD.FileName = ""
+            OpenFD.Filter = "All files|*.*|Text Files|*.txt"
+            OpenFD.ShowDialog()
+            'TODO create genomerunner table if it doesn't exist
+            '     truncate it if it does exist.
+            fileName = OpenFD.FileName
+            If fileName <> "" Then
+                CreateGenomeRunnerTable()
+                OpenDatabase()
+                Using reader As StreamReader = New StreamReader(fileName) 'reads the list of features\
+                    reader.ReadLine() 'skip header row
+                    While Not reader.EndOfStream
+                        Dim line As Array = Split(reader.ReadLine, vbTab)
+                        'line could contain null values which will cause an sql error. Insert 'NULL' when this is the case.
+                        For i As Integer = 0 To line.Length - 1 Step +1
+                            If line(i) = "" Then line(i) = "NULL"
+                        Next
+                        Dim tableName As String = Trim(line(1))
+                        lblProgress.Text = "Loading genomerunner entry for " & tableName : Application.DoEvents()
+                        'TODO if entry already exists, get record count. If it matches file, keep all calculated values.
+                        cmd = New MySqlCommand("SELECT * FROM genomerunner WHERE FeatureTable = '" & tableName & "';", cn)
+                        dr = cmd.ExecuteReader()
+                        If dr.HasRows Then
+                            'already exists; update existing entry
+                            cmd = New MySqlCommand("UPDATE genomerunner SET id=" & line(0) & ", FeatureName='" & Trim(line(2)) & "', QueryType='" & line(3) & "', ThresholdType='" & line(4) & "',Tier=" & line(9) & ",Category='" & line(10) & "', orderofcategory=" & line(11) & ", Name='" & line(12) & "' WHERE FeatureTable = '" & tableName & "';", cn)
+                        Else
+                            'doesn't exist; create new entry
+                            'NOTE: this old cmd updates all calculated fields (min, max, etc) as well.
+                            'cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, ThresholdMin, ThresholdMax, ThresholdMean, ThresholdMedian, Tier, Category, orderofcategory, Name, count, min, max, mean, median, length) VALUES (" & _
+                            '                       line(0) & ", '" & line(1) & "', '" & line(2) & "', '" & line(3) & "', '" & line(4) & "', " & line(5) & ", " & line(6) & ", " & line(7) & ", " & line(8) & ", " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "', " & line(13) & ", " & line(14) & ", " & line(15) & ", " & line(16) & ", " & line(17) & ", " & line(18) & ")", cn)
+                            cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, Tier, Category, orderofcategory, Name) VALUES (" & _
+                                               line(0) & ", '" & Trim(line(1)) & "', '" & Trim(line(2)) & "', '" & line(3) & "', '" & line(4) & "', " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "');", cn)
+                            arrayFeaturesToAdd.Add(tableName)
+                        End If
+                        dr.Close()
+                        'arrayFeaturesToAdd.Add(tableName)
+                        'Update genomerunner table
+                        cmd.ExecuteNonQuery()
+                        cmd.Dispose()
 
+                    End While
+                End Using
+                SyncFeatureToAddListToArrays()
+                lblProgress.Text = "Done" : Application.DoEvents()
+            End If
+        End If
     End Sub
 
-    Private Sub listFeaturesToAdd_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles listFeaturesToAdd.SelectedIndexChanged
+    Private Sub btnUpdateStatistics_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpdateStatistics.Click
+        'for each entry in genomerunner, count how many records are in that table and save that to count field of genomerunner
+        OpenDatabase()
 
+        For Each tableName In arrayFeaturesAdded
+            lblProgress.Text = tableName : Application.DoEvents()
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            'Need to query extra data if this table's genomerunner entry has 'Threshold' as it's QueryType
+            Dim thresholdType As String = ""
+            Dim thresholdQuery As String = ""
+            cmd = New MySqlCommand("SELECT QueryType, ThresholdType FROM genomerunner WHERE FeatureTable = '" & tableName & "';", cn)
+            dr = cmd.ExecuteReader
+            While dr.Read
+                'TODO threshold fields only need calculating when QueryType == "Threshold", right??
+                If dr(0) = "Threshold" Then
+                    thresholdType = dr(1)
+                    thresholdQuery = ", thresholdMin = (SELECT MIN(" & thresholdType & ") from " & tableName & _
+                                     "), thresholdMax = (SELECT MAX(" & thresholdType & ") from " & tableName & _
+                                     "), thresholdMean = (SELECT AVG(" & thresholdType & ") from " & tableName & ")"
+                End If
+            End While
+            dr.Close()
+            cmd.Dispose()
+            'TODO update other calulcated fields as well! Most are too complicated to do in a query.
+            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            'Update genomerunner
+            cmd = New MySqlCommand("UPDATE genomerunner SET count=(SELECT COUNT(*) FROM " & tableName & ")" & thresholdQuery & " WHERE FeatureTable = '" & tableName & "';", cn)
+            cmd.ExecuteNonQuery()
+            cmd.Dispose()
+        Next
+        lblProgress.Text = "Done" : Application.DoEvents()
+    End Sub
+
+    Private Sub CreateGenomeRunnerTable()
+        OpenDatabase()
+        cmd = New MySqlCommand("CREATE TABLE IF NOT EXISTS genomerunner (" & _
+                                "id INT(11) NOT NULL PRIMARY KEY," & _
+                                "FeatureTable VARCHAR(200)," & _
+                                "FeatureName VARCHAR(300)," & _
+                                "QueryType VARCHAR(45) DEFAULT 'NA'," & _
+                                "ThresholdType VARCHAR(45) DEFAULT 'NA'," & _
+                                "ThresholdMin FLOAT DEFAULT 0," & _
+                                "ThresholdMax FLOAT DEFAULT 0," & _
+                                "ThresholdMean FLOAT DEFAULT 0," & _
+                                "ThresholdMedian FLOAT DEFAULT 0," & _
+                                "Tier INT(11) DEFAULT 3," & _
+                                "Category VARCHAR(45) DEFAULT '1000|unknown'," & _
+                                "orderofcategory INT(11) DEFAULT 0," & _
+                                "Name VARCHAR(45)," & _
+                                "count INT(11) DEFAULT 0," & _
+                                "min INT(11) DEFAULT 0," & _
+                                "max INT(11) DEFAULT 0," & _
+                                "mean INT(11) DEFAULT 0," & _
+                                "median INT(11) DEFAULT 0," & _
+                                "length BIGINT(11) unsigned DEFAULT 0" & _
+                                ");", cn)
+        cmd.ExecuteNonQuery()
+        cmd.Dispose()
+        cn.Close()
+    End Sub
+
+    Private Sub btnExportGenomeRunner_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExportGenomeRunner.Click
+        'creates a filedialog for the user to select a place to export the file to
+        Dim SaveFD As New SaveFileDialog
+        SaveFD.Title = "Select a location to export the genomerunner table to"
+        SaveFD.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory
+        SaveFD.FileName = ""
+        SaveFD.Filter = "All files|*.*|Text Files|*.txt"
+        SaveFD.ShowDialog()
+        fileName = SaveFD.FileName
+
+        OpenDatabase()
+        cmd = New MySqlCommand("SELECT * FROM genomerunner;", cn)
+        dr = cmd.ExecuteReader
+
+        Using writer As StreamWriter = New StreamWriter(fileName)
+            While dr.Read
+                Dim queryAsArray As New ArrayList
+                For i As Integer = 0 To dr.FieldCount - 1 Step +1
+                    queryAsArray.Add(dr(i).ToString)
+                Next
+                writer.WriteLine(Join(queryAsArray.ToArray, vbTab))
+            End While
+        End Using
+        lblProgress.Text = "Done" : Application.DoEvents()
     End Sub
 End Class
 
 Class ChromBase
     Public IsHit As Boolean
 End Class
+
+
 

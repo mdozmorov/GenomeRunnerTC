@@ -1,0 +1,9 @@
+1	cytoBand	Chromosome Bands Localized by FISH Mapping Clones	General	NA	0	0	0	0	2	1|Mapping and Sequencing Tracks	1			
+2	stsMap	STS Markers on Genetic (blue) and Radiation Hybrid (black) Maps	OutputScore	score	0	0	0	0	3	1|Mapping and Sequencing Tracks	3		305064	40	4990	379	256	71177715	2.48	
+3	fishClones	Clones Placed on Cytogenetic Map Using FISH	OutputScore	score	0	0	0	0	3	1|Mapping and Sequencing Tracks	4		9758	83	10281557	137470	153585	1056528272	36.81	
+4	recombRate	Recombination Rate from deCODE, Marshfield, or Genethon Maps	General	NA	0	0	0	0	3	1|Mapping and Sequencing Tracks	5		2830	1000000	1000000	1000000	1000000	2830000000	98.61	
+5	ctgPos	Physical Map Contigs	General	NA	0	0	0	0	3	1|Mapping and Sequencing Tracks	6		249	4262	115591997	11536024	754004	2872469987	100.09	
+6	gold	Assembly from Fragments	OutputScore	type	0	0	0	0	2	1|Mapping and Sequencing Tracks	2	type
+7	bacEndPairs	BAC End Pairs	OutputScore	score	0	0	0	0	3	1|Mapping and Sequencing Tracks	7		208922	25000	349970	147513	157201	2886571835	100.58	
+8	fosEndPairs	Fosmid End Pairs	OutputScore	score	0	0	0	0	3	1|Mapping and Sequencing Tracks	8		384442	10252	335519	39838	39677	2726616224	95.00	
+9	hg19ContigDiff	Contigs new to GRCh37/(hg19), not carried forward from NCBI build 36(hg18)	OutputScore	score	0	0	0	0	3	1|Mapping and Sequencing Tracks	9	score	1124	169	317147	77712	67650	87347800	3.04	

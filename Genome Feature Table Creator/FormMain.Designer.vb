@@ -57,6 +57,10 @@ Partial Class FormMain
         Me.SaveFD = New System.Windows.Forms.SaveFileDialog()
         Me.txtUcscdb = New System.Windows.Forms.TextBox()
         Me.Label7 = New System.Windows.Forms.Label()
+        Me.btnCompareToUCSC = New System.Windows.Forms.Button()
+        Me.btnLoadGRTable = New System.Windows.Forms.Button()
+        Me.btnUpdateStatistics = New System.Windows.Forms.Button()
+        Me.btnExportGenomeRunner = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
@@ -110,7 +114,7 @@ Partial Class FormMain
         Me.txtDatabase.Name = "txtDatabase"
         Me.txtDatabase.Size = New System.Drawing.Size(117, 20)
         Me.txtDatabase.TabIndex = 2
-        Me.txtDatabase.Text = "hg18test"
+        Me.txtDatabase.Text = "temp19"
         '
         'Label4
         '
@@ -367,11 +371,51 @@ Partial Class FormMain
         Me.Label7.TabIndex = 59
         Me.Label7.Text = "UCSC db"
         '
+        'btnCompareToUCSC
+        '
+        Me.btnCompareToUCSC.Location = New System.Drawing.Point(780, 165)
+        Me.btnCompareToUCSC.Name = "btnCompareToUCSC"
+        Me.btnCompareToUCSC.Size = New System.Drawing.Size(117, 23)
+        Me.btnCompareToUCSC.TabIndex = 60
+        Me.btnCompareToUCSC.Text = "Compare to UCSC"
+        Me.btnCompareToUCSC.UseVisualStyleBackColor = True
+        '
+        'btnLoadGRTable
+        '
+        Me.btnLoadGRTable.Location = New System.Drawing.Point(779, 103)
+        Me.btnLoadGRTable.Name = "btnLoadGRTable"
+        Me.btnLoadGRTable.Size = New System.Drawing.Size(118, 23)
+        Me.btnLoadGRTable.TabIndex = 61
+        Me.btnLoadGRTable.Text = "Load GR table"
+        Me.btnLoadGRTable.UseVisualStyleBackColor = True
+        '
+        'btnUpdateStatistics
+        '
+        Me.btnUpdateStatistics.Location = New System.Drawing.Point(780, 134)
+        Me.btnUpdateStatistics.Name = "btnUpdateStatistics"
+        Me.btnUpdateStatistics.Size = New System.Drawing.Size(117, 23)
+        Me.btnUpdateStatistics.TabIndex = 62
+        Me.btnUpdateStatistics.Text = "Update Statistics"
+        Me.btnUpdateStatistics.UseVisualStyleBackColor = True
+        '
+        'btnExportGenomeRunner
+        '
+        Me.btnExportGenomeRunner.Location = New System.Drawing.Point(767, 373)
+        Me.btnExportGenomeRunner.Name = "btnExportGenomeRunner"
+        Me.btnExportGenomeRunner.Size = New System.Drawing.Size(131, 23)
+        Me.btnExportGenomeRunner.TabIndex = 63
+        Me.btnExportGenomeRunner.Text = "Export GenomeRunner"
+        Me.btnExportGenomeRunner.UseVisualStyleBackColor = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(909, 427)
+        Me.Controls.Add(Me.btnExportGenomeRunner)
+        Me.Controls.Add(Me.btnUpdateStatistics)
+        Me.Controls.Add(Me.btnLoadGRTable)
+        Me.Controls.Add(Me.btnCompareToUCSC)
         Me.Controls.Add(Me.Label7)
         Me.Controls.Add(Me.txtUcscdb)
         Me.Controls.Add(Me.GroupBox2)
@@ -438,5 +482,9 @@ Partial Class FormMain
     Friend WithEvents btnGetCountofBasePairsCovered As System.Windows.Forms.Button
     Friend WithEvents txtUcscdb As System.Windows.Forms.TextBox
     Friend WithEvents Label7 As System.Windows.Forms.Label
+    Friend WithEvents btnCompareToUCSC As System.Windows.Forms.Button
+    Friend WithEvents btnLoadGRTable As System.Windows.Forms.Button
+    Friend WithEvents btnUpdateStatistics As System.Windows.Forms.Button
+    Friend WithEvents btnExportGenomeRunner As System.Windows.Forms.Button
 
 End Class
