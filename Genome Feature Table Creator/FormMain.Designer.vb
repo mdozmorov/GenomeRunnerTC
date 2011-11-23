@@ -61,6 +61,8 @@ Partial Class FormMain
         Me.btnLoadGRTable = New System.Windows.Forms.Button()
         Me.btnUpdateStatistics = New System.Windows.Forms.Button()
         Me.btnExportGenomeRunner = New System.Windows.Forms.Button()
+        Me.lblDataDownloadPath = New System.Windows.Forms.Label()
+        Me.btnChangeDataDownloadPath = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
@@ -136,7 +138,7 @@ Partial Class FormMain
         '
         'ProgressBar1
         '
-        Me.ProgressBar1.Location = New System.Drawing.Point(14, 398)
+        Me.ProgressBar1.Location = New System.Drawing.Point(7, 436)
         Me.ProgressBar1.Margin = New System.Windows.Forms.Padding(2)
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(489, 19)
@@ -145,7 +147,7 @@ Partial Class FormMain
         'lblProgress
         '
         Me.lblProgress.AutoSize = True
-        Me.lblProgress.Location = New System.Drawing.Point(11, 383)
+        Me.lblProgress.Location = New System.Drawing.Point(4, 421)
         Me.lblProgress.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.lblProgress.Name = "lblProgress"
         Me.lblProgress.Size = New System.Drawing.Size(66, 13)
@@ -407,11 +409,31 @@ Partial Class FormMain
         Me.btnExportGenomeRunner.Text = "Export GenomeRunner"
         Me.btnExportGenomeRunner.UseVisualStyleBackColor = True
         '
+        'lblDataDownloadPath
+        '
+        Me.lblDataDownloadPath.AutoSize = True
+        Me.lblDataDownloadPath.Location = New System.Drawing.Point(283, 410)
+        Me.lblDataDownloadPath.Name = "lblDataDownloadPath"
+        Me.lblDataDownloadPath.Size = New System.Drawing.Size(106, 13)
+        Me.lblDataDownloadPath.TabIndex = 64
+        Me.lblDataDownloadPath.Text = "Data Download Path"
+        '
+        'btnChangeDataDownloadPath
+        '
+        Me.btnChangeDataDownloadPath.Location = New System.Drawing.Point(277, 373)
+        Me.btnChangeDataDownloadPath.Name = "btnChangeDataDownloadPath"
+        Me.btnChangeDataDownloadPath.Size = New System.Drawing.Size(156, 23)
+        Me.btnChangeDataDownloadPath.TabIndex = 65
+        Me.btnChangeDataDownloadPath.Text = "Change Data Download Path"
+        Me.btnChangeDataDownloadPath.UseVisualStyleBackColor = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(909, 427)
+        Me.ClientSize = New System.Drawing.Size(909, 464)
+        Me.Controls.Add(Me.btnChangeDataDownloadPath)
+        Me.Controls.Add(Me.lblDataDownloadPath)
         Me.Controls.Add(Me.btnExportGenomeRunner)
         Me.Controls.Add(Me.btnUpdateStatistics)
         Me.Controls.Add(Me.btnLoadGRTable)
@@ -486,5 +508,7 @@ Partial Class FormMain
     Friend WithEvents btnLoadGRTable As System.Windows.Forms.Button
     Friend WithEvents btnUpdateStatistics As System.Windows.Forms.Button
     Friend WithEvents btnExportGenomeRunner As System.Windows.Forms.Button
+    Friend WithEvents lblDataDownloadPath As System.Windows.Forms.Label
+    Friend WithEvents btnChangeDataDownloadPath As System.Windows.Forms.Button
 
 End Class

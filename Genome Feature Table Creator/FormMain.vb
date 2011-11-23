@@ -18,20 +18,27 @@ Public Class FormMain
     Dim backgroundFeatures As New List(Of Feature)
     Dim featureTables As New List(Of String)
     Dim bkgNum As Integer
+    Private DataDownloadPath As String = ""
+
     'connects to the db
     Private Sub btnConnect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnConnect.Click
         btnExonTable.Enabled = True
         btnGenerateBackground.Enabled = True
         listFeaturesToAdd.Items.Clear() 'clears the list
-        OpenDatabase()
-        'RP: Commented out this next line b/c it should use DownloadFeatureList() first;
-        '    otherwise it's just using a previously saved file that doesn't necessarily
-        '    correspond to the currently selected UCSC database.
-        '    For now this is handled when the user clicks "Update Features List".
-        'GetFeaturesAvailableList() 'gets list of features that can be added
-        GetAddedFeatures() 'loads the table names of features added to list
-        GetEmptyFeatures() 'checks for features in the db that are empty
-        syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
+        Try
+            OpenDatabase()
+            'RP: Commented out this next line b/c it should use DownloadFeatureList() first;
+            '    otherwise it's just using a previously saved file that doesn't necessarily
+            '    correspond to the currently selected UCSC database.
+            '    For now this is handled when the user clicks "Update Features List".
+            'GetFeaturesAvailableList() 'gets list of features that can be added
+
+            GetAddedFeatures() 'loads the table names of features added to list
+            GetEmptyFeatures() 'checks for features in the db that are empty
+            syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
+        Catch
+            MessageBox.Show("Please check connection settings and try again")
+        End Try
     End Sub
 
     'opens a connection to the database; uses values supplied by the user
@@ -49,20 +56,14 @@ Public Class FormMain
         ' ConnectionString = "Server=VM-Wren-01;Database=hg18;User ID=Genome;Password=Runner"
         ' End If
         'If IsNothing(cn) Then
-        Try
-            If IsNothing(cn) Then
-                cn = New MySqlConnection(ConnectionString) : cn.Open()
-            End If
-            If cn.State = ConnectionState.Closed Then
-                cn = New MySqlConnection(ConnectionString) : cn.Open()
-            End If
-            'End If
-            ' If cn.State = ConnectionState.Closed Then
-            ' cn = New MySqlConnection(ConnectionString) : cn.Open()
-            ' End If
-        Catch
-            MessageBox.Show("Please check connection settings and try again")
-        End Try
+
+        If IsNothing(cn) Then
+            cn = New MySqlConnection(ConnectionString) : cn.Open()
+        End If
+        If cn.State = ConnectionState.Closed Then
+            cn = New MySqlConnection(ConnectionString) : cn.Open()
+        End If
+
     End Sub
 
     'gets the feature list that is saved locally 
@@ -191,33 +192,26 @@ Public Class FormMain
         arrayFeaturesAdded.Clear()
         arrayFeaturesToUpdate.Clear()
         listFeaturesToAdd.Items.Clear()
-        Try
-            cmd = New MySqlCommand("SELECT featuretable FROM genomerunner", cn)
-            Dim dr As MySqlDataReader
-            dr = cmd.ExecuteReader()
-            While dr.Read()
-                arrayFeaturesAdded.Add(dr(0))
-                listFeaturesToAdd.Items.Add(arrayFeaturesAdded(arrayFeaturesAdded.Count - 1))
-            End While
-            cn.Close() : dr.Close()
-        Catch
-        End Try
+        cmd = New MySqlCommand("SELECT featuretable FROM genomerunner", cn)
+        Dim dr As MySqlDataReader
+        dr = cmd.ExecuteReader()
+        While dr.Read()
+            arrayFeaturesAdded.Add(dr(0))
+            listFeaturesToAdd.Items.Add(arrayFeaturesAdded(arrayFeaturesAdded.Count - 1))
+        End While
+        cn.Close() : dr.Close()
     End Sub
     'get empty feature tables
     Private Sub GetEmptyFeatures()
         OpenDatabase()
         arrayFeaturesEmpty.Clear()
-        For x As Integer = 0 To listFeaturesToAdd.Items.Count Step +1
-            Try
-                cmd = New MySqlCommand("SELECT * FROM " & listFeaturesToAdd.Items(x) & " LIMIT 1", cn)
-                dr = cmd.ExecuteReader()
-                If dr.HasRows = False Then
-                    arrayFeaturesEmpty.Add(listFeaturesToAdd.Items(x))
-                End If
-                dr.Close()
-            Catch
-
-            End Try
+        For Each item In listFeaturesToAdd.Items
+            cmd = New MySqlCommand("SELECT * FROM " & item & " LIMIT 1", cn)
+            dr = cmd.ExecuteReader()
+            If dr.HasRows = False Then
+                arrayFeaturesEmpty.Add(item)
+            End If
+            dr.Close()
         Next
         cn.Close()
     End Sub
@@ -235,20 +229,20 @@ Public Class FormMain
     'downloads and decompresses the feature 
     Private Sub PrepareFeatures(ByVal feature As String)
         Try
-            If File.Exists(AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".sql") = False Then
+            If File.Exists(DataDownloadPath & feature & ".sql") = False Then
                 lblProgress.Text = "Downloading " & feature & ".sql" : Application.DoEvents()
-                My.Computer.Network.DownloadFile(ftpHost & feature & ".sql", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".sql") 'downloads the .sql feature file
+                My.Computer.Network.DownloadFile(ftpHost & feature & ".sql", DataDownloadPath & feature & ".sql") 'downloads the .sql feature file
             End If
-            If File.Exists(AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".txt.gz") = False Then
+            If File.Exists(DataDownloadPath & feature & ".txt.gz") = False Then
                 lblProgress.Text = "Downloading " & feature & ".txt.gz" : Application.DoEvents()
-                My.Computer.Network.DownloadFile(ftpHost & feature & ".txt.gz", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".txt.gz") 'downloads the .txt.gz feature file
+                My.Computer.Network.DownloadFile(ftpHost & feature & ".txt.gz", DataDownloadPath & feature & ".txt.gz") 'downloads the .txt.gz feature file
 
             End If
             'decompresses the .gz file to a .txt file
-            If File.Exists(AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\" & feature & ".txt") = False Then
+            If File.Exists(DataDownloadPath & feature & ".txt") = False Then
                 lblProgress.Text = "Decompressing " & feature : Application.DoEvents()
-                Using outfile As FileStream = File.Create(AppDomain.CurrentDomain.BaseDirectory.ToString() & "FeaturesToAdd\" & feature & ".txt")
-                    Using infile As FileStream = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory.ToString() & "FeaturesToAdd\" & feature & ".txt.gz")
+                Using outfile As FileStream = File.Create(DataDownloadPath & feature & ".txt")
+                    Using infile As FileStream = File.OpenRead(DataDownloadPath & feature & ".txt.gz")
                         Using Decompress As System.IO.Compression.GZipStream = New System.IO.Compression.GZipStream(infile, Compression.CompressionMode.Decompress)
                             Decompress.CopyTo(outfile)
                         End Using
@@ -262,7 +256,7 @@ Public Class FormMain
 
     'adds the features to the database
     Private Sub AddFeaturesToDatabase(ByVal feature As String)
-        Dim filePathFeaturesToAdd = AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\"
+        Dim filePathFeaturesToAdd = DataDownloadPath
         Dim filestream As String = File.ReadAllText(filePathFeaturesToAdd & feature & ".sql")
         Dim query As String = ""
         If File.Exists(filePathFeaturesToAdd & ".sql") = True And File.Exists(filePathFeaturesToAdd & feature & ".txt.gz") = True Or File.Exists(filePathFeaturesToAdd & feature & ".txt") Then 'continues if both required files are found
@@ -343,7 +337,7 @@ End_Loop:
 
         '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Populate
-        Dim filePathFeaturesToAdd = AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\"
+        Dim filePathFeaturesToAdd = DataDownloadPath
         Dim filePathFeatureToAddUNIX As String = filePathFeaturesToAdd.Replace("\", "/") 'modifies the filepath to conform to UNIX 
         Dim query As String = "LOAD DATA LOCAL INFILE " & "'" & filePathFeatureToAddUNIX & feature & ".txt' INTO TABLE " & feature & ";" & _
                               "UPDATE genomerunner SET count = (SELECT COUNT(*) FROM " & feature & ")" & thresholdQuery & " WHERE FeatureTable = '" & feature & "';"
@@ -357,6 +351,8 @@ End_Loop:
 
         End Try
         cmd.Dispose() : cn.Close() : dr.Close()
+        'Now delete unzipped .txt file to save space.
+        File.Delete(filePathFeaturesToAdd & feature & ".txt")
     End Sub
 
     Private Sub CreateExonTable(ByVal feature As String)
@@ -579,27 +575,26 @@ End_Loop:
     'checks if the feature actually exists in the database as a table, if not then it is added to the list of features to add
     Private Sub syncGenomeTableToDatabase()
         OpenDatabase()
-        Try
-            'gets all of the feature tables
-            cmd = New MySqlCommand("SHOW tables;", cn)
-            Dim dr As MySqlDataReader
-            dr = cmd.ExecuteReader()
-            While dr.Read()
-                featureTables.Add(dr(0))
-            End While
-            'goes through each of the features that are listed in the genomerunner table and adds them to the list of features to add if their table does not exist
-            For Each feature In arrayFeaturesAdded
-                If featureTables.IndexOf(feature.ToString().ToLower()) = -1 Then
-                    arrayFeaturesToAdd.Add(feature)
-                End If
-            Next
-            cn.Close() : dr.Close()
-        Catch
-        End Try
+
+        'gets all of the feature tables
+        cmd = New MySqlCommand("SHOW tables;", cn)
+        Dim dr As MySqlDataReader
+        dr = cmd.ExecuteReader()
+        While dr.Read()
+            featureTables.Add(dr(0))
+        End While
+        'goes through each of the features that are listed in the genomerunner table and adds them to the list of features to add if their table does not exist
+        For Each feature In arrayFeaturesAdded
+            If featureTables.IndexOf(feature.ToString().ToLower()) = -1 Then
+                arrayFeaturesToAdd.Add(feature)
+            End If
+        Next
+        cn.Close() : dr.Close()
+
     End Sub
 
     Private Sub btnPrepareFiles_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrepareFiles.Click
-        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count
+        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count + arrayFeaturesEmpty.Count
         ProgressBar1.Value = 0
         For Each featureToAdd In arrayFeaturesToAdd
             PrepareFeatures(featureToAdd)
@@ -609,13 +604,17 @@ End_Loop:
             PrepareFeatures(featureToUpdate)
             ProgressBar1.Value += 1
         Next
+        For Each emptyFeature In arrayFeaturesEmpty
+            PrepareFeatures(emptyFeature)
+            ProgressBar1.Value += 1
+        Next
         lblProgress.Text = "Done"
         ProgressBar1.Value = 0
         syncGenomeTableToDatabase()
     End Sub
 
     Private Sub btnCreateTables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCreateTables.Click
-        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count
+        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count + arrayFeaturesEmpty.Count
         ProgressBar1.Value = 0
         Dim arrayAddedSuccessfully As New ArrayList
         For Each featureToAdd In arrayFeaturesToAdd
@@ -624,6 +623,10 @@ End_Loop:
         Next
         For Each featureToUpdate In arrayFeaturesToUpdate
             AddFeaturesToDatabase(featureToUpdate)  'runs the .sql query 
+            ProgressBar1.Value += 1
+        Next
+        For Each emptyFeature In arrayFeaturesEmpty
+            AddFeaturesToDatabase(emptyFeature)
             ProgressBar1.Value += 1
         Next
         arrayFeaturesToAdd.Clear()
@@ -1010,22 +1013,25 @@ End_Loop:
                         For i As Integer = 0 To line.Length - 1 Step +1
                             If line(i) = "" Then line(i) = "NULL"
                         Next
-                        Dim tableName As String = Trim(line(1))
-                        lblProgress.Text = "Loading genomerunner entry for " & tableName : Application.DoEvents()
+                        Dim FeatureTable As String = Trim(line(1))
+                        Dim FeatureName As String = Trim(line(2))
+                        FeatureName = RemoveIllegalChars(FeatureName)
+
+                        lblProgress.Text = "Loading genomerunner entry for " & FeatureTable : Application.DoEvents()
                         'TODO if entry already exists, get record count. If it matches file, keep all calculated values.
-                        cmd = New MySqlCommand("SELECT * FROM genomerunner WHERE FeatureTable = '" & tableName & "';", cn)
+                        cmd = New MySqlCommand("SELECT * FROM genomerunner WHERE FeatureTable = '" & FeatureTable & "';", cn)
                         dr = cmd.ExecuteReader()
                         If dr.HasRows Then
                             'already exists; update existing entry
-                            cmd = New MySqlCommand("UPDATE genomerunner SET id=" & line(0) & ", FeatureName='" & Trim(line(2)) & "', QueryType='" & line(3) & "', ThresholdType='" & line(4) & "',Tier=" & line(9) & ",Category='" & line(10) & "', orderofcategory=" & line(11) & ", Name='" & line(12) & "' WHERE FeatureTable = '" & tableName & "';", cn)
+                            cmd = New MySqlCommand("UPDATE genomerunner SET id=" & line(0) & ", FeatureName='" & FeatureName & "', QueryType='" & line(3) & "', ThresholdType='" & line(4) & "',Tier=" & line(9) & ",Category='" & line(10) & "', orderofcategory=" & line(11) & ", Name='" & line(12) & "' WHERE FeatureTable = '" & FeatureTable & "';", cn)
                         Else
                             'doesn't exist; create new entry
                             'NOTE: this old cmd updates all calculated fields (min, max, etc) as well.
                             'cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, ThresholdMin, ThresholdMax, ThresholdMean, ThresholdMedian, Tier, Category, orderofcategory, Name, count, min, max, mean, median, length) VALUES (" & _
                             '                       line(0) & ", '" & line(1) & "', '" & line(2) & "', '" & line(3) & "', '" & line(4) & "', " & line(5) & ", " & line(6) & ", " & line(7) & ", " & line(8) & ", " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "', " & line(13) & ", " & line(14) & ", " & line(15) & ", " & line(16) & ", " & line(17) & ", " & line(18) & ")", cn)
                             cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, Tier, Category, orderofcategory, Name) VALUES (" & _
-                                               line(0) & ", '" & Trim(line(1)) & "', '" & Trim(line(2)) & "', '" & line(3) & "', '" & line(4) & "', " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "');", cn)
-                            arrayFeaturesToAdd.Add(tableName)
+                                               line(0) & ", '" & Trim(line(1)) & "', '" & FeatureName & "', '" & line(3) & "', '" & line(4) & "', " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "');", cn)
+                            arrayFeaturesToAdd.Add(FeatureTable)
                         End If
                         dr.Close()
                         'arrayFeaturesToAdd.Add(tableName)
@@ -1040,6 +1046,18 @@ End_Loop:
             End If
         End If
     End Sub
+
+    'This method ensures that FeatureTable column doesn't end up with illegal chars in it.
+    Private Function RemoveIllegalChars(ByRef StringToTrim As String) As String
+        Dim illegalChars As Char() = "!@#$%^&*(){}""+'<>?/\:.-" & vbLf.ToCharArray()
+        Dim sb As New System.Text.StringBuilder
+        For Each ch As Char In StringToTrim
+            If Array.IndexOf(illegalChars, ch) = -1 Then
+                sb.Append(ch)
+            End If
+        Next
+        Return sb.ToString
+    End Function
 
     Private Sub btnUpdateStatistics_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpdateStatistics.Click
         'for each entry in genomerunner, count how many records are in that table and save that to count field of genomerunner
@@ -1126,6 +1144,27 @@ End_Loop:
             End While
         End Using
         lblProgress.Text = "Done" : Application.DoEvents()
+    End Sub
+
+    Public Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        DataDownloadPath = GetSetting("Genome Feature Table Creator", "Data", "DataDownloadPath", AppDomain.CurrentDomain.BaseDirectory & "FeaturesToAdd\")
+        lblDataDownloadPath.Text = DataDownloadPath
+    End Sub
+
+    Private Sub btnChangeDataDownloadPath_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnChangeDataDownloadPath.Click
+        Dim FolderBrowser As New System.Windows.Forms.FolderBrowserDialog
+        FolderBrowser.Description = "Select folder for saving UCSC data files."
+        Dim dlgResult As DialogResult = FolderBrowser.ShowDialog()
+        If dlgResult = Windows.Forms.DialogResult.OK Then
+            DataDownloadPath = FolderBrowser.SelectedPath & "\"
+            lblDataDownloadPath.Text = DataDownloadPath
+            SaveSetting("Genome Feature Table Creator", "Data", "DataDownloadPath", DataDownloadPath)
+        End If
     End Sub
 End Class
 
