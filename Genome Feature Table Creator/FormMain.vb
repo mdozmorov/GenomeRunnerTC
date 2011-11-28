@@ -32,12 +32,19 @@ Public Class FormMain
             '    correspond to the currently selected UCSC database.
             '    For now this is handled when the user clicks "Update Features List".
             'GetFeaturesAvailableList() 'gets list of features that can be added
-
-            GetAddedFeatures() 'loads the table names of features added to list
-            GetEmptyFeatures() 'checks for features in the db that are empty
-            syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
+            If genomerunnerTableExists() Then
+                GetAddedFeatures() 'loads the table names of features added to list
+                GetEmptyFeatures() 'checks for features in the db that are empty
+                syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
+            Else
+                MessageBox.Show("Connection successfully established, but selected database has no genomerunner table.")
+            End If
         Catch
             MessageBox.Show("Please check connection settings and try again")
+            'Now close connection if for some reason it was left open.
+            If Not IsNothing(cn) Then
+                If cn.State = 1 Then cn.Close()
+            End If
         End Try
     End Sub
 
@@ -165,15 +172,10 @@ Public Class FormMain
     'sets the feature to be removed 
     Private Sub btnRemoveFromList_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnRemoveFromList.Click
         Dim response As Boolean = MsgBox("Are you sure you want to remove the selected features from the database?", vbYesNo) 'asks the user if they want to overwrite the old query with the new
-        'If response = vbYes Then
-        Try
-            For Each feature In listFeaturesToAdd.SelectedItems
-                RemoveFeatures(feature)
-            Next
-        Catch ex As Exception
-            Throw ex
-        End Try
-        ' End If
+
+        For Each feature In listFeaturesToAdd.SelectedItems
+            RemoveFeatures(feature)
+        Next
         GetAddedFeatures()
         GetEmptyFeatures()
         syncGenomeTableToDatabase()
@@ -199,7 +201,7 @@ Public Class FormMain
             arrayFeaturesAdded.Add(dr(0))
             listFeaturesToAdd.Items.Add(arrayFeaturesAdded(arrayFeaturesAdded.Count - 1))
         End While
-        cn.Close() : dr.Close()
+        cmd.Dispose() : cn.Close() : dr.Close()
     End Sub
     'get empty feature tables
     Private Sub GetEmptyFeatures()
@@ -213,7 +215,7 @@ Public Class FormMain
             End If
             dr.Close()
         Next
-        cn.Close()
+        cmd.Dispose() : cn.Close() : dr.Close()
     End Sub
     'syncs the listFeaturesToAdd to both the array of features to add and features added
     Private Sub SyncFeatureToAddListToArrays()
@@ -474,6 +476,16 @@ End_Loop:
         End Try
     End Sub
 
+    Private Function genomerunnerTableExists() As Boolean
+        Dim exists As Boolean = False
+        OpenDatabase()
+        cmd = New MySqlCommand("SHOW TABLES LIKE '%genomerunner%'", cn)
+        dr = cmd.ExecuteReader
+        If dr.HasRows Then exists = True
+        cmd.Dispose() : dr.Close() : cn.Close()
+        Return exists
+    End Function
+
     'removes features from the database
     Private Sub RemoveFeatures(ByVal feature As String)
         OpenDatabase()
@@ -589,7 +601,7 @@ End_Loop:
                 arrayFeaturesToAdd.Add(feature)
             End If
         Next
-        cn.Close() : dr.Close()
+        cmd.Dispose() : cn.Close() : dr.Close()
 
     End Sub
 
@@ -999,8 +1011,6 @@ End_Loop:
             OpenFD.FileName = ""
             OpenFD.Filter = "All files|*.*|Text Files|*.txt"
             OpenFD.ShowDialog()
-            'TODO create genomerunner table if it doesn't exist
-            '     truncate it if it does exist.
             fileName = OpenFD.FileName
             If fileName <> "" Then
                 CreateGenomeRunnerTable()
