@@ -116,7 +116,7 @@ Partial Class FormMain
         Me.txtDatabase.Name = "txtDatabase"
         Me.txtDatabase.Size = New System.Drawing.Size(117, 20)
         Me.txtDatabase.TabIndex = 2
-        Me.txtDatabase.Text = "temp19"
+        Me.txtDatabase.Text = "temp18"
         '
         'Label4
         '
@@ -248,7 +248,7 @@ Partial Class FormMain
         Me.Label6.Size = New System.Drawing.Size(231, 39)
         Me.Label6.TabIndex = 52
         Me.Label6.Text = "List of Features: Features to be Added (purple), Features in database (black).  E" & _
-            "mpty Features (orange)"
+            "mpty Features (orange). Features to update (green)."
         '
         'btnPrepareFiles
         '
@@ -362,7 +362,7 @@ Partial Class FormMain
         Me.txtUcscdb.Name = "txtUcscdb"
         Me.txtUcscdb.Size = New System.Drawing.Size(117, 20)
         Me.txtUcscdb.TabIndex = 5
-        Me.txtUcscdb.Text = "hg19"
+        Me.txtUcscdb.Text = "hg18"
         '
         'Label7
         '

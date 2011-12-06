@@ -32,7 +32,7 @@ Public Class FormMain
             '    correspond to the currently selected UCSC database.
             '    For now this is handled when the user clicks "Update Features List".
             'GetFeaturesAvailableList() 'gets list of features that can be added
-            If genomerunnerTableExists() Then
+            If TableExists("genomerunner") Then
                 GetAddedFeatures() 'loads the table names of features added to list
                 GetEmptyFeatures() 'checks for features in the db that are empty
                 syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
@@ -208,12 +208,19 @@ Public Class FormMain
         OpenDatabase()
         arrayFeaturesEmpty.Clear()
         For Each item In listFeaturesToAdd.Items
-            cmd = New MySqlCommand("SELECT * FROM " & item & " LIMIT 1", cn)
-            dr = cmd.ExecuteReader()
-            If dr.HasRows = False Then
-                arrayFeaturesEmpty.Add(item)
+            If TableExists(item) Then
+                cmd = New MySqlCommand("SELECT * FROM " & item & " LIMIT 1;", cn)
+                dr = cmd.ExecuteReader()
+                Dim HasRows As Boolean = dr.HasRows
+                dr.Close()
+                If HasRows = False Then
+                    arrayFeaturesEmpty.Add(item)
+                ElseIf Not TableIsComplete(item) Then
+                    arrayFeaturesToUpdate.Add(item)
+                End If
+            Else
+                arrayFeaturesToAdd.Add(item)
             End If
-            dr.Close()
         Next
         cmd.Dispose() : cn.Close() : dr.Close()
     End Sub
@@ -476,15 +483,31 @@ End_Loop:
         End Try
     End Sub
 
-    Private Function genomerunnerTableExists() As Boolean
+    Private Function TableExists(ByVal tableName As String) As Boolean
         Dim exists As Boolean = False
-        OpenDatabase()
-        cmd = New MySqlCommand("SHOW TABLES LIKE '%genomerunner%'", cn)
+        cmd = New MySqlCommand("SHOW TABLES LIKE '%" & tableName & "%'", cn)
         dr = cmd.ExecuteReader
         If dr.HasRows Then exists = True
-        cmd.Dispose() : dr.Close() : cn.Close()
+        cmd.Dispose() : dr.Close()
         Return exists
     End Function
+
+    Private Function TableIsComplete(ByVal tableName As String) As Boolean
+        Dim complete As Boolean = False
+        cmd = New MySqlCommand("SELECT complete FROM genomerunner WHERE FeatureTable = '" & tableName & "';", cn)
+        dr = cmd.ExecuteReader
+        dr.Read()
+        If dr(0) = "1" Then complete = True
+        cmd.Dispose() : dr.Close()
+        Return complete
+    End Function
+
+    Private Sub SetGenomerunnerEntryToComplete(ByVal tableName As String)
+        OpenDatabase()
+        cmd = New MySqlCommand("UPDATE genomerunner SET complete = true WHERE FeatureTable = '" & tableName & "';", cn)
+        cmd.ExecuteNonQuery()
+        cmd.Dispose()
+    End Sub
 
     'removes features from the database
     Private Sub RemoveFeatures(ByVal feature As String)
@@ -493,6 +516,7 @@ End_Loop:
         cmd.ExecuteNonQuery()
         cmd = New MySqlCommand("DELETE FROM genomerunner WHERE featuretable = '" & feature & "';", cn)
         cmd.ExecuteNonQuery()
+        cmd.Dispose()
     End Sub
 
     'changes the background color of items in the listAvailable that are already added 
@@ -662,10 +686,12 @@ End_Loop:
             lblProgress.Text = "Loading data for " & emptyFeature : Application.DoEvents()
             PopulateDatabse(emptyFeature)
             CreateExonTable(emptyFeature)
+            SetGenomerunnerEntryToComplete(emptyFeature)
         Next
-        GetEmptyFeatures()
         lblProgress.Text = "Done"
         ProgressBar1.Value = 0
+        GetEmptyFeatures()
+        SyncFeatureToAddListToArrays()
     End Sub
 
     Private Sub btnCreateExonTable_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExonTable.Click
@@ -1123,7 +1149,8 @@ End_Loop:
                                 "max INT(11) DEFAULT 0," & _
                                 "mean INT(11) DEFAULT 0," & _
                                 "median INT(11) DEFAULT 0," & _
-                                "length BIGINT(11) unsigned DEFAULT 0" & _
+                                "length BIGINT(11) UNSIGNED DEFAULT 0," & _
+                                "complete BOOLEAN NOT NULL DEFAULT 0" & _
                                 ");", cn)
         cmd.ExecuteNonQuery()
         cmd.Dispose()
