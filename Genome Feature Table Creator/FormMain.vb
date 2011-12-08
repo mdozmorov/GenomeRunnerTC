@@ -19,6 +19,7 @@ Public Class FormMain
     Dim featureTables As New List(Of String)
     Dim bkgNum As Integer
     Private DataDownloadPath As String = ""
+    Private PopulateErrors As New List(Of String)
 
     'connects to the db
     Private Sub btnConnect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnConnect.Click
@@ -247,17 +248,6 @@ Public Class FormMain
                 My.Computer.Network.DownloadFile(ftpHost & feature & ".txt.gz", DataDownloadPath & feature & ".txt.gz") 'downloads the .txt.gz feature file
 
             End If
-            'decompresses the .gz file to a .txt file
-            If File.Exists(DataDownloadPath & feature & ".txt") = False Then
-                lblProgress.Text = "Decompressing " & feature : Application.DoEvents()
-                Using outfile As FileStream = File.Create(DataDownloadPath & feature & ".txt")
-                    Using infile As FileStream = File.OpenRead(DataDownloadPath & feature & ".txt.gz")
-                        Using Decompress As System.IO.Compression.GZipStream = New System.IO.Compression.GZipStream(infile, Compression.CompressionMode.Decompress)
-                            Decompress.CopyTo(outfile)
-                        End Using
-                    End Using
-                End Using
-            End If
         Catch
             MessageBox.Show("Unable to download files for " & feature)
         End Try
@@ -327,6 +317,18 @@ End_Loop:
     Private Sub PopulateDatabse(ByVal feature As String)
         OpenDatabase()
 
+        'decompresses this feature's .gz file to a .txt file
+        If File.Exists(DataDownloadPath & feature & ".txt") = False Then
+            lblProgress.Text = "Decompressing " & feature : Application.DoEvents()
+            Using outfile As FileStream = File.Create(DataDownloadPath & feature & ".txt")
+                Using infile As FileStream = File.OpenRead(DataDownloadPath & feature & ".txt.gz")
+                    Using Decompress As System.IO.Compression.GZipStream = New System.IO.Compression.GZipStream(infile, Compression.CompressionMode.Decompress)
+                        Decompress.CopyTo(outfile)
+                    End Using
+                End Using
+            End Using
+        End If
+
         '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Need to query extra data if this table's genomerunner entry has 'Threshold' as it's QueryType
         Dim thresholdType As String = ""
@@ -354,10 +356,7 @@ End_Loop:
             cmd = New MySqlCommand(query, cn) 'reads the .txt file and inserts the data into the created table
             cmd.ExecuteNonQuery()
         Catch ex As Exception
-            Dim form As New FormQuery
-            form.txtQuery.Text = query
-            form.ShowDialog()
-
+            PopulateErrors.Add(query)
         End Try
         cmd.Dispose() : cn.Close() : dr.Close()
         'Now delete unzipped .txt file to save space.
@@ -682,6 +681,7 @@ End_Loop:
         ProgressBar1.Maximum = arrayFeaturesEmpty.Count
         ProgressBar1.Value = 0
         GetEmptyFeatures()
+        PopulateErrors.Clear()
         For Each emptyFeature In arrayFeaturesEmpty
             lblProgress.Text = "Loading data for " & emptyFeature : Application.DoEvents()
             PopulateDatabse(emptyFeature)
@@ -692,6 +692,14 @@ End_Loop:
         ProgressBar1.Value = 0
         GetEmptyFeatures()
         SyncFeatureToAddListToArrays()
+
+        'Show queries that had errors during populating, if any.
+        If PopulateErrors.Any Then
+            Dim form As New FormQuery
+            form.txtQuery.Text = Join(PopulateErrors.ToArray(), vbCrLf)
+            form.ShowDialog()
+            PopulateErrors.Clear()
+        End If
     End Sub
 
     Private Sub btnCreateExonTable_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExonTable.Click
