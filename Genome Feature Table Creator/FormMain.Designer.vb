@@ -248,7 +248,7 @@ Partial Class FormMain
         Me.Label6.Size = New System.Drawing.Size(231, 39)
         Me.Label6.TabIndex = 52
         Me.Label6.Text = "List of Features: Features to be Added (purple), Features in database (black).  E" & _
-            "mpty Features (orange). Features to update (green)."
+    "mpty Features (orange). Features to update (green)."
         '
         'btnPrepareFiles
         '
@@ -331,7 +331,7 @@ Partial Class FormMain
         Me.btnGenerateBedFile.TabIndex = 60
         Me.btnGenerateBedFile.Text = "Generate Feature Bed File "
         Me.ToolTip1.SetToolTip(Me.btnGenerateBedFile, "Extracts the Chrom, ChromStart, and ChromEnd of the selected feature and generate" & _
-                "s a .bed file")
+        "s a .bed file")
         Me.btnGenerateBedFile.UseVisualStyleBackColor = True
         '
         'btnGenerateBackground

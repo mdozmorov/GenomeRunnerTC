@@ -1211,6 +1211,7 @@ End_Loop:
             SaveSetting("Genome Feature Table Creator", "Data", "DataDownloadPath", DataDownloadPath)
         End If
     End Sub
+
 End Class
 
 Class ChromBase

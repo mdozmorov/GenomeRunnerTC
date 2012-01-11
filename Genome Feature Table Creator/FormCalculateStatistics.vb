@@ -97,30 +97,30 @@ Public Class FormCalculateStatistics
     End Sub
 
     Private Sub btnGenerateHistogram_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnGenerateHistogram.Click
-        If ComboBoxColumns.SelectedItem <> Nothing Then
-            Dim columnValues As New List(Of Object)
-            OpenDatabase()
+        'If ComboBoxColumns.SelectedItem <> Nothing Then
+        '    Dim columnValues As New List(Of Object)
+        '    OpenDatabase()
 
-            'gets all of the column values for the selected column
-            cmd = New MySqlCommand("SELECT " & ComboBoxColumns.SelectedItem & " FROM " & listFeatures(currFeature), cn)
-            dr = cmd.ExecuteReader()
-            While dr.Read()
-                    columnValues.Add(dr(0))
-            End While
-            cn.Close() : dr.Close()
-            'http://www.codeproject.com/KB/cs/RtoCSharp.aspx
-            Dim sc1 As StatConnector = New STATCONNECTORSRVLib.StatConnector
-            Dim n As Integer = 20, o1 As Object
+        '    'gets all of the column values for the selected column
+        '    cmd = New MySqlCommand("SELECT " & ComboBoxColumns.SelectedItem & " FROM " & listFeatures(currFeature), cn)
+        '    dr = cmd.ExecuteReader()
+        '    While dr.Read()
+        '            columnValues.Add(dr(0))
+        '    End While
+        '    cn.Close() : dr.Close()
+        '    'http://www.codeproject.com/KB/cs/RtoCSharp.aspx
+        '    Dim sc1 As StatConnector = New STATCONNECTORSRVLib.StatConnector
+        '    Dim n As Integer = 20, o1 As Object
 
-            sc1.Init("R")
-                Dim someerror As String = sc1.GetErrorText()
-            sc1.SetSymbol("values", columnValues)
-            sc1.Evaluate("columnvalues<-norm(v)")
-            sc1.EvaluateNoReturn("hist(columnvalues")
-            o1 = sc1.GetSymbol("x1")
-            MsgBox("OK")
-        Else
-            MessageBox.Show("Please select a column for which to produce a histogram")
-        End If
+        '    sc1.Init("R")
+        '        Dim someerror As String = sc1.GetErrorText()
+        '    sc1.SetSymbol("values", columnValues)
+        '    sc1.Evaluate("columnvalues<-norm(v)")
+        '    sc1.EvaluateNoReturn("hist(columnvalues")
+        '    o1 = sc1.GetSymbol("x1")
+        '    MsgBox("OK")
+        'Else
+        '    MessageBox.Show("Please select a column for which to produce a histogram")
+        'End If
     End Sub
 End Class
