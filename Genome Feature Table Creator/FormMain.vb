@@ -11,6 +11,7 @@ Public Class FormMain
     Dim ftpHost As String, ftpUser As String = "anonymous", ftpPassword As String = "" 'ftpHost will be set in OpenDatabase() using field from user
     Dim uName As String = "", uServer As String = "", uPassword As String = "", uDatabase As String = ""
     Dim arrayFeaturesToAdd As New ArrayList, arrayFeaturesAdded As New ArrayList, arrayFeaturesToRemove As New ArrayList, arrayFeaturesEmpty As New ArrayList, arrayFeaturesToUpdate As New ArrayList, arrayFeaturesNearlyUpToDate As New ArrayList, arrayFeaturesNotAddedSuccessfully As New ArrayList 'array of features to be added
+    Dim arrayFeaturesCompleted As New ArrayList, indexFeature As Integer
     Dim fileName As String, numOfFeaturesToAdd As Integer = 0, progress As Integer = 1 'stores the value of the progress bar
     Dim ConnectionString As String
     Dim Features As New List(Of Feature)
@@ -35,10 +36,10 @@ Public Class FormMain
             'GetFeaturesAvailableList() 'gets list of features that can be added
             If TableExists("genomerunner") Then
                 GetAddedFeatures() 'loads the table names of features added to list
-                GetEmptyFeatures() 'checks for features in the db that are empty
-                syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
+                'GetEmptyFeatures() 'checks for features in the db that are empty
+                'syncGenomeTableToDatabase() 'checks for features that have been added to the genomerunner table but not actually added to the database
             Else
-                MessageBox.Show("Connection successfully established, but selected database has no genomerunner table.")
+                MessageBox.Show("Connection successfully established, but selected database has no genomerunner table." & vbCrLf & "Please, load genomerunner table first.")
             End If
         Catch
             MessageBox.Show("Please check connection settings and try again")
@@ -195,14 +196,18 @@ Public Class FormMain
         arrayFeaturesAdded.Clear()
         arrayFeaturesToUpdate.Clear()
         listFeaturesToAdd.Items.Clear()
-        cmd = New MySqlCommand("SELECT featuretable FROM genomerunner", cn)
+        indexFeature = 0
+        cmd = New MySqlCommand("SELECT featuretable,complete FROM genomerunner", cn)
         Dim dr As MySqlDataReader
         dr = cmd.ExecuteReader()
         While dr.Read()
             arrayFeaturesAdded.Add(dr(0))
-            listFeaturesToAdd.Items.Add(arrayFeaturesAdded(arrayFeaturesAdded.Count - 1))
+            arrayFeaturesCompleted.Add(dr(1))
+            indexFeature += 1
+            listFeaturesToAdd.Items.Add(arrayFeaturesAdded(indexFeature - 1))
+            'listFeaturesToAdd_DrawItem(sender:=,e:=)
         End While
-        cmd.Dispose() : cn.Close() : dr.Close()
+        cmd.Dispose() : dr.Close()
     End Sub
     'get empty feature tables
     Private Sub GetEmptyFeatures()
@@ -523,19 +528,32 @@ End_Loop:
         e.DrawBackground()
         'changes the color of the list items
         'TODO add light green for existing items that need to be updated. Use arrayFeaturesToUpdate
-        e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Black, e.Bounds, StringFormat.GenericDefault)
-        If arrayFeaturesToAdd.IndexOf(listFeaturesToAdd.Items.Item(e.Index)) <> -1 Then 'searches if the feature in the list of features in the db is in the array of feastures to add
-            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.BlueViolet, e.Bounds, StringFormat.GenericDefault) 'paints the text green
-        ElseIf arrayFeaturesToRemove.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then 'searches if the feature in the list of features from thd db is in the list of feature to remove
-            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Red, e.Bounds, StringFormat.GenericDefault) 'paints the text red
-        ElseIf arrayFeaturesToUpdate.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then 'searches if the feature in the list of features from thd db is in the list of feature to update
-            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.LightGreen, e.Bounds, StringFormat.GenericDefault) 'paints the text light green
-        ElseIf arrayFeaturesNearlyUpToDate.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then
-            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Blue, e.Bounds, StringFormat.GenericDefault) 'paints the text light green
-        End If
-        If arrayFeaturesEmpty.IndexOf(listFeaturesToAdd.Items.Item(e.Index)) <> -1 Then
-            e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Orange, e.Bounds, StringFormat.GenericDefault)
-        End If
+        Dim myBrush As Brush
+        Select Case arrayFeaturesCompleted(e.Index)
+            Case 0 'Table not exist
+                myBrush = Brushes.Red
+            Case 1 'Table structure exist, but no data
+                myBrush = Brushes.Orange
+            Case 8
+                myBrush = Brushes.Green
+            Case 9
+                myBrush = Brushes.Black
+        End Select
+        e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, myBrush, e.Bounds, StringFormat.GenericDefault)
+
+        'e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Black, e.Bounds, StringFormat.GenericDefault)
+        'If arrayFeaturesToAdd.IndexOf(listFeaturesToAdd.Items.Item(e.Index)) <> -1 Then 'searches if the feature in the list of features in the db is in the array of feastures to add
+        '    e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.BlueViolet, e.Bounds, StringFormat.GenericDefault) 'paints the text green
+        'ElseIf arrayFeaturesToRemove.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then 'searches if the feature in the list of features from thd db is in the list of feature to remove
+        '    e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Red, e.Bounds, StringFormat.GenericDefault) 'paints the text red
+        'ElseIf arrayFeaturesToUpdate.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then 'searches if the feature in the list of features from thd db is in the list of feature to update
+        '    e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.LightGreen, e.Bounds, StringFormat.GenericDefault) 'paints the text light green
+        'ElseIf arrayFeaturesNearlyUpToDate.IndexOf(listFeaturesToAdd.Items(e.Index).ToString()) <> -1 Then
+        '    e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Blue, e.Bounds, StringFormat.GenericDefault) 'paints the text light green
+        'End If
+        'If arrayFeaturesEmpty.IndexOf(listFeaturesToAdd.Items.Item(e.Index)) <> -1 Then
+        '    e.Graphics.DrawString(listFeaturesToAdd.Items(e.Index).ToString(), e.Font, Brushes.Orange, e.Bounds, StringFormat.GenericDefault)
+        'End If
         e.DrawFocusRectangle()
     End Sub
 
