@@ -204,7 +204,7 @@ Public Class FormMain
             arrayFeaturesAdded.Add(dr(0))
             arrayFeaturesCompleted.Add(dr(1))
             indexFeature += 1
-            listFeaturesToAdd.Items.Add(arrayFeaturesAdded(indexFeature - 1))
+            listFeaturesToAdd.Items.Add(arrayFeaturesAdded(arrayFeaturesAdded.Count - 1))
             'listFeaturesToAdd_DrawItem(sender:=,e:=)
         End While
         cmd.Dispose() : dr.Close()
@@ -251,7 +251,6 @@ Public Class FormMain
             If File.Exists(DataDownloadPath & feature & ".txt.gz") = False Then
                 lblProgress.Text = "Downloading " & feature & ".txt.gz" : Application.DoEvents()
                 My.Computer.Network.DownloadFile(ftpHost & feature & ".txt.gz", DataDownloadPath & feature & ".txt.gz") 'downloads the .txt.gz feature file
-
             End If
         Catch
             MessageBox.Show("Unable to download files for " & feature)
@@ -319,6 +318,52 @@ Public Class FormMain
 End_Loop:
     End Sub
 
+    Private Sub AddTableToDatabase(ByVal feature As String)
+        Dim filePathFeaturesToAdd = DataDownloadPath
+        Dim filestream As String = File.ReadAllText(filePathFeaturesToAdd & feature & ".sql")
+        Dim query As String = ""
+        'If File.Exists(filePathFeaturesToAdd & ".sql") = True Then 'continues if both required files are found
+        OpenDatabase()
+        Dim querySuccessful As Boolean = False
+        Dim queryDidFail As Boolean = False
+        query = filestream.Replace("longblob", "longtext") 'sets the initial query, replaces "longblob" with "longtext"
+        query = query.Replace("TYPE", "ENGINE")
+        query = query.Replace("SET character_set_client = @saved_cs_client;", " ")
+        query = query.Replace("SET @saved_cs_client     = @@character_set_client;", " ")
+        query = query.Replace("SET character_set_client = utf8;", " ")
+        query = query.Insert(0, "DROP TABLE IF EXISTS " & feature & "; ")
+        While querySuccessful = False 'continues till the query is successful
+            OpenDatabase()
+            Try
+                cmd = New MySqlCommand(query, cn) 'executes the query
+                cmd.ExecuteNonQuery()
+                querySuccessful = True 'sets query status as successful. causes the loop to end
+                If queryDidFail = True Then
+                    Dim response As Boolean = MsgBox("Query successful, do  you want to overwrite the old query file?", vbYesNo) 'asks the user if they want to overwrite the old query with the new
+                    If response = True Then
+                        File.WriteAllText(filePathFeaturesToAdd & feature & ".sql", query) 'replaces the query file with a new query
+                    End If
+                End If
+
+            Catch ex As Exception
+                Dim form As New FormMysqlQueryEditor() 'creates a form for the user to change the query
+                form.originQuery = filestream.Replace("longblob", "longtext")
+                form.LabelStatus.Text = "There was an error executing the query.  Please review the query for proper formatting and resubmit."
+                form.LabelErrorMessage.Text = "Error Message: " & ex.Message
+                form.ShowDialog()
+                If form.skipQuery = True Then
+                    arrayFeaturesNotAddedSuccessfully.Add(feature) 'adds the feature to list of features that failed to be added
+                    GoTo End_Loop 'skips the query
+                End If
+                query = form.editedQuery
+                queryDidFail = True
+            End Try
+            cn.Close()
+        End While
+        ' End If
+End_Loop:
+    End Sub
+
     Private Sub PopulateDatabse(ByVal feature As String)
         OpenDatabase()
 
@@ -361,7 +406,10 @@ End_Loop:
             cmd = New MySqlCommand(query, cn) 'reads the .txt file and inserts the data into the created table
             cmd.ExecuteNonQuery()
         Catch ex As Exception
-            PopulateErrors.Add(query)
+            'PopulateErrors.Add(query)
+            Dim form As New FormQuery
+            form.txtQuery.Text = query
+            form.ShowDialog()
         End Try
         cmd.Dispose() : cn.Close() : dr.Close()
         'Now delete unzipped .txt file to save space.
@@ -528,7 +576,7 @@ End_Loop:
         e.DrawBackground()
         'changes the color of the list items
         'TODO add light green for existing items that need to be updated. Use arrayFeaturesToUpdate
-        Dim myBrush As Brush
+        Dim myBrush As Brush = Brushes.Red
         Select Case arrayFeaturesCompleted(e.Index)
             Case 0 'Table not exist
                 myBrush = Brushes.Red
@@ -647,23 +695,58 @@ End_Loop:
     End Sub
 
     Private Sub btnPrepareFiles_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnPrepareFiles.Click
-        ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count + arrayFeaturesEmpty.Count
-        ProgressBar1.Value = 0
-        For Each featureToAdd In arrayFeaturesToAdd
-            PrepareFeatures(featureToAdd)
-            ProgressBar1.Value += 1
+        'ProgressBar1.Maximum = arrayFeaturesToAdd.Count + arrayFeaturesToUpdate.Count + arrayFeaturesEmpty.Count
+        'ProgressBar1.Value = 0
+        'For Each featureToAdd In arrayFeaturesToAdd
+        'PrepareFeatures(featureToAdd)
+        '    ProgressBar1.Value += 1
+        'Next
+        'For Each featureToUpdate In arrayFeaturesToUpdate
+        '    PrepareFeatures(featureToUpdate)
+        '    ProgressBar1.Value += 1
+        'Next
+        'For Each emptyFeature In arrayFeaturesEmpty
+        '    PrepareFeatures(emptyFeature)
+        '    ProgressBar1.Value += 1
+        'Next
+        'lblProgress.Text = "Done"
+        'ProgressBar1.Value = 0
+        'syncGenomeTableToDatabase()
+
+
+        Dim listLength As Integer = listFeaturesToAdd.Items.Count - 1
+        For i = 0 To listLength
+            Select Case arrayFeaturesCompleted(i)
+                Case 0
+                    PrepareFeatures(arrayFeaturesAdded(i))
+                    AddTableToDatabase(arrayFeaturesAdded(i))
+                    OpenDatabase()
+                    cmd = New MySqlCommand("UPDATE genomerunner SET complete=1 WHERE featuretable='" & arrayFeaturesAdded(i) & "';", cn)
+                    cmd.ExecuteNonQuery() : cmd.Dispose()
+                    PopulateDatabse(arrayFeaturesAdded(i))
+                    CreateExonTable(arrayFeaturesAdded(i))
+                    OpenDatabase()
+                    cmd = New MySqlCommand("UPDATE genomerunner SET complete=9 WHERE featuretable='" & arrayFeaturesAdded(i) & "';", cn)
+                    cmd.ExecuteNonQuery() : cmd.Dispose()
+                Case 1
+                    PrepareFeatures(arrayFeaturesAdded(i))
+                    PopulateDatabse(arrayFeaturesAdded(i))
+                    CreateExonTable(arrayFeaturesAdded(i))
+                    cmd = New MySqlCommand("UPDATE genomerunner SET complete=9 WHERE featuretable='" & arrayFeaturesAdded(i) & "';", cn)
+                    cmd.ExecuteNonQuery() : cmd.Dispose()
+                Case 8
+                Case 9
+            End Select
+
+            'If arrayFeaturesCompleted(i) = 0 Then
+            '    MsgBox("000")
+            'End If
         Next
-        For Each featureToUpdate In arrayFeaturesToUpdate
-            PrepareFeatures(featureToUpdate)
-            ProgressBar1.Value += 1
-        Next
-        For Each emptyFeature In arrayFeaturesEmpty
-            PrepareFeatures(emptyFeature)
-            ProgressBar1.Value += 1
-        Next
-        lblProgress.Text = "Done"
-        ProgressBar1.Value = 0
-        syncGenomeTableToDatabase()
+        'For Each feature In listFeaturesToAdd.Items
+        '    If arrayFeaturesCompleted(listFeaturesToAdd.SelectedIndex) = 0 Then
+        '        MsgBox("000")
+        '    End If
+        'Next
     End Sub
 
     Private Sub btnCreateTables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCreateTables.Click
@@ -1093,7 +1176,7 @@ End_Loop:
                             '                       line(0) & ", '" & line(1) & "', '" & line(2) & "', '" & line(3) & "', '" & line(4) & "', " & line(5) & ", " & line(6) & ", " & line(7) & ", " & line(8) & ", " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "', " & line(13) & ", " & line(14) & ", " & line(15) & ", " & line(16) & ", " & line(17) & ", " & line(18) & ")", cn)
                             cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, Tier, Category, orderofcategory, Name) VALUES (" & _
                                                line(0) & ", '" & Trim(line(1)) & "', '" & FeatureName & "', '" & line(3) & "', '" & line(4) & "', " & line(9) & ", '" & line(10) & "', " & line(11) & ", '" & line(12) & "');", cn)
-                            arrayFeaturesToAdd.Add(FeatureTable)
+                            'arrayFeaturesToAdd.Add(FeatureTable)
                         End If
                         dr.Close()
                         'arrayFeaturesToAdd.Add(tableName)
@@ -1103,7 +1186,7 @@ End_Loop:
 
                     End While
                 End Using
-                SyncFeatureToAddListToArrays()
+                'SyncFeatureToAddListToArrays()
                 lblProgress.Text = "Done" : Application.DoEvents()
             End If
         End If
@@ -1176,7 +1259,7 @@ End_Loop:
                                 "mean INT(11) DEFAULT 0," & _
                                 "median INT(11) DEFAULT 0," & _
                                 "length BIGINT(11) UNSIGNED DEFAULT 0," & _
-                                "complete BOOLEAN NOT NULL DEFAULT 0" & _
+                                "complete INT(11) NOT NULL DEFAULT 0" & _
                                 ");", cn)
         cmd.ExecuteNonQuery()
         cmd.Dispose()
@@ -1230,6 +1313,10 @@ End_Loop:
         End If
     End Sub
 
+    Private Sub Button1_Click_1(sender As System.Object, e As System.EventArgs) Handles Button1.Click
+        Dim form As New FormMysqlQueryEditor()
+        form.ShowDialog()
+    End Sub
 End Class
 
 Class ChromBase

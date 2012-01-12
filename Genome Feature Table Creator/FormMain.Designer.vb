@@ -63,6 +63,7 @@ Partial Class FormMain
         Me.btnExportGenomeRunner = New System.Windows.Forms.Button()
         Me.lblDataDownloadPath = New System.Windows.Forms.Label()
         Me.btnChangeDataDownloadPath = New System.Windows.Forms.Button()
+        Me.Button1 = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
@@ -427,11 +428,21 @@ Partial Class FormMain
         Me.btnChangeDataDownloadPath.Text = "Change Data Download Path"
         Me.btnChangeDataDownloadPath.UseVisualStyleBackColor = True
         '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(751, 436)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(75, 23)
+        Me.Button1.TabIndex = 66
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(909, 464)
+        Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.btnChangeDataDownloadPath)
         Me.Controls.Add(Me.lblDataDownloadPath)
         Me.Controls.Add(Me.btnExportGenomeRunner)
@@ -510,5 +521,6 @@ Partial Class FormMain
     Friend WithEvents btnExportGenomeRunner As System.Windows.Forms.Button
     Friend WithEvents lblDataDownloadPath As System.Windows.Forms.Label
     Friend WithEvents btnChangeDataDownloadPath As System.Windows.Forms.Button
+    Friend WithEvents Button1 As System.Windows.Forms.Button
 
 End Class
