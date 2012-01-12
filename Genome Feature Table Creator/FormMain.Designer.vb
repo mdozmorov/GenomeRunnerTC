@@ -207,6 +207,7 @@ Partial Class FormMain
         '
         Me.listFeaturesToAdd.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed
         Me.listFeaturesToAdd.FormattingEnabled = True
+        Me.listFeaturesToAdd.HorizontalScrollbar = True
         Me.listFeaturesToAdd.Location = New System.Drawing.Point(537, 52)
         Me.listFeaturesToAdd.Name = "listFeaturesToAdd"
         Me.listFeaturesToAdd.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended
