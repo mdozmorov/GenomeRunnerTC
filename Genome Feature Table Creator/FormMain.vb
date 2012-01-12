@@ -316,6 +316,14 @@ Public Class FormMain
         End If
     End Sub
 
+    Private Sub FixHG19_rmsk()
+        OpenDatabase()
+        If TableExists("rmsk") And InStr(txtDatabase.Text, "hg19") > 0 Then
+            cmd = New MySqlCommand("ALTER TABLE `hg19`.`rmsk` CHANGE COLUMN `genoName` `chrom` VARCHAR(255) NOT NULL DEFAULT '', CHANGE COLUMN `genoStart` `chromStart` INT(10) UNSIGNED NOT NULL DEFAULT '0', CHANGE COLUMN `genoEnd` `chromEnd` INT(10) UNSIGNED NOT NULL DEFAULT '0', DROP INDEX `genoName`, ADD INDEX `genoName` (`chrom`(14) ASC, `bin` ASC);", cn)
+            cmd.ExecuteNonQuery() : cmd.Dispose()
+        End If
+    End Sub
+
     Private Sub btnLoadGRTable_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnLoadGRTable.Click
         If MessageBox.Show("This will update/create new genomerunner table. Are you sure you want to continue?", "Confirm", _
                            MessageBoxButtons.OKCancel) = DialogResult.OK Then
@@ -403,6 +411,59 @@ Public Class FormMain
         Dim CurrDate As Date = Now.Date
         cmd = New MySqlCommand("INSERT INTO time (LastUpdated) VALUES ('" & CurrDate & "');", cn) : cmd.ExecuteNonQuery() : cmd.Dispose()
     End Sub
+
+    Private Sub btnUpdateStatistics_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpdateStatistics.Click
+        'for each entry in genomerunner, count how many records are in that table and save that to count field of genomerunner
+        OpenDatabase()
+
+        For Each feature In arrayFeaturesAdded
+            lblProgress.Text = feature : Application.DoEvents()
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            'Need to query extra data if this table's genomerunner entry has 'Threshold' as it's QueryType
+            Dim thresholdType As String = ""
+            Dim thresholdQuery As String = ""
+            cmd = New MySqlCommand("SELECT QueryType, ThresholdType FROM genomerunner WHERE FeatureTable = '" & feature & "';", cn)
+            dr = cmd.ExecuteReader
+            While dr.Read
+                'TODO threshold fields only need calculating when QueryType == "Threshold", right??
+                If dr(0) = "Threshold" Then
+                    thresholdType = dr(1)
+                    thresholdQuery = ", thresholdMin = (SELECT MIN(" & thresholdType & ") from " & feature & _
+                                     "), thresholdMax = (SELECT MAX(" & thresholdType & ") from " & feature & _
+                                     "), thresholdMean = (SELECT AVG(" & thresholdType & ") from " & feature & ")"
+                End If
+            End While
+            dr.Close() : cmd.Dispose()
+            'TODO update other calulcated fields as well! Most are too complicated to do in a query.
+            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            'Update genomerunner total count and threshold fields
+            cmd = New MySqlCommand("UPDATE genomerunner SET count=(SELECT COUNT(*) FROM " & feature & ")" & thresholdQuery & " WHERE FeatureTable = '" & feature & "';", cn)
+            cmd.ExecuteNonQuery()
+            cmd.Dispose()
+        Next
+        lblProgress.Text = "Done" : Application.DoEvents()
+    End Sub
+
+    Private Function TableExists(ByVal tableName As String) As Boolean
+        Dim exists As Boolean = False
+        cmd = New MySqlCommand("SHOW TABLES LIKE '%" & tableName & "%'", cn)
+        dr = cmd.ExecuteReader
+        If dr.HasRows Then exists = True
+        cmd.Dispose() : dr.Close()
+        Return exists
+    End Function
+
+    'This method ensures that FeatureTable column doesn't end up with illegal chars in it.
+    Private Function RemoveIllegalChars(ByRef StringToTrim As String) As String
+        Dim illegalChars As Char() = "!@#$%^&*(){}""+'<>?/\:.-" & vbLf.ToCharArray()
+        Dim sb As New System.Text.StringBuilder
+        For Each ch As Char In StringToTrim
+            If Array.IndexOf(illegalChars, ch) = -1 Then
+                sb.Append(ch)
+            End If
+        Next
+        Return sb.ToString
+    End Function
 
     'opens a connection to the database; uses values supplied by the user
     Private Sub OpenDatabase()
@@ -693,14 +754,6 @@ End_Loop:
         Return exons
     End Function
 
-    Private Function TableExists(ByVal tableName As String) As Boolean
-        Dim exists As Boolean = False
-        cmd = New MySqlCommand("SHOW TABLES LIKE '%" & tableName & "%'", cn)
-        dr = cmd.ExecuteReader
-        If dr.HasRows Then exists = True
-        cmd.Dispose() : dr.Close()
-        Return exists
-    End Function
 
     Private Function TableIsComplete(ByVal tableName As String) As Boolean
         Dim complete As Boolean = False
@@ -1185,12 +1238,10 @@ End_Loop:
         ucscCmd.Dispose()
         ucscDr.Close()
 
-
-
         'Now look compare results with genomerunner table.
         For Each tableName In localTablesToCounts.Keys
             'If String.Compare(localTablesToCounts(tableName), ucscTablesToCounts(tableName), True) Then 'comparison will ignore case
-            If localTablesToCounts(tableName) <> ucscTablesToCounts(tableName) Then
+            If localTablesToCounts(tableName.ToString.ToLower) <> ucscTablesToCounts(tableName.ToString.ToLower) Then
                 'BEWARE: differences in lower/upper case could be an issue here.
                 arrayFeaturesAdded.Remove(tableName)
                 If (Math.Abs(ucscTablesToCounts(tableName) - localTablesToCounts(tableName)) \ ucscTablesToCounts(tableName)) <= 0.1 Then
@@ -1205,50 +1256,6 @@ End_Loop:
         GetAddedFeatures()
     End Sub
 
-    'This method ensures that FeatureTable column doesn't end up with illegal chars in it.
-    Private Function RemoveIllegalChars(ByRef StringToTrim As String) As String
-        Dim illegalChars As Char() = "!@#$%^&*(){}""+'<>?/\:.-" & vbLf.ToCharArray()
-        Dim sb As New System.Text.StringBuilder
-        For Each ch As Char In StringToTrim
-            If Array.IndexOf(illegalChars, ch) = -1 Then
-                sb.Append(ch)
-            End If
-        Next
-        Return sb.ToString
-    End Function
-
-    Private Sub btnUpdateStatistics_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpdateStatistics.Click
-        'for each entry in genomerunner, count how many records are in that table and save that to count field of genomerunner
-        OpenDatabase()
-
-        For Each tableName In arrayFeaturesAdded
-            lblProgress.Text = tableName : Application.DoEvents()
-            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-            'Need to query extra data if this table's genomerunner entry has 'Threshold' as it's QueryType
-            Dim thresholdType As String = ""
-            Dim thresholdQuery As String = ""
-            cmd = New MySqlCommand("SELECT QueryType, ThresholdType FROM genomerunner WHERE FeatureTable = '" & tableName & "';", cn)
-            dr = cmd.ExecuteReader
-            While dr.Read
-                'TODO threshold fields only need calculating when QueryType == "Threshold", right??
-                If dr(0) = "Threshold" Then
-                    thresholdType = dr(1)
-                    thresholdQuery = ", thresholdMin = (SELECT MIN(" & thresholdType & ") from " & tableName & _
-                                     "), thresholdMax = (SELECT MAX(" & thresholdType & ") from " & tableName & _
-                                     "), thresholdMean = (SELECT AVG(" & thresholdType & ") from " & tableName & ")"
-                End If
-            End While
-            dr.Close()
-            cmd.Dispose()
-            'TODO update other calulcated fields as well! Most are too complicated to do in a query.
-            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-            'Update genomerunner
-            cmd = New MySqlCommand("UPDATE genomerunner SET count=(SELECT COUNT(*) FROM " & tableName & ")" & thresholdQuery & " WHERE FeatureTable = '" & tableName & "';", cn)
-            cmd.ExecuteNonQuery()
-            cmd.Dispose()
-        Next
-        lblProgress.Text = "Done" : Application.DoEvents()
-    End Sub
 
     Private Sub btnExportGenomeRunner_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExportGenomeRunner.Click
         'creates a filedialog for the user to select a place to export the file to
@@ -1308,7 +1315,7 @@ End_Loop:
         'Debug.Print(ftd)
         'ftd = Format(ftd, "yyyy-MM-dd")
         'Dim strsplit = Split(ftd, " ")
-        DatabaseLastUpdated()
+        FixHG19_rmsk()
     End Sub
 End Class
 
