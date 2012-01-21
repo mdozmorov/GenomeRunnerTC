@@ -1399,11 +1399,20 @@ End_Loop:
         SaveFD.ShowDialog()
         fileName = SaveFD.FileName
 
+        Dim GRheader As New List(Of String)
+        OpenDatabase()
+        cmd = New MySqlCommand("SHOW COLUMNS FROM genomerunner;", cn)
+        dr = cmd.ExecuteReader
+        While dr.Read
+            GRheader.Add(dr(0))
+        End While
+        dr.Close() : cmd.Dispose()
+
         OpenDatabase()
         cmd = New MySqlCommand("SELECT * FROM genomerunner;", cn)
         dr = cmd.ExecuteReader
-
         Using writer As StreamWriter = New StreamWriter(fileName)
+            writer.WriteLine(String.Join(vbTab, GRheader))
             While dr.Read
                 Dim queryAsArray As New ArrayList
                 For i As Integer = 0 To dr.FieldCount - 1 Step +1
@@ -1412,6 +1421,7 @@ End_Loop:
                 writer.WriteLine(Join(queryAsArray.ToArray, vbTab))
             End While
         End Using
+        dr.Close() : cmd.Dispose()
         lblProgress.Text = "Done" : Application.DoEvents()
     End Sub
 
