@@ -108,7 +108,7 @@ Public Class FormMain
         arrayFeaturesAdded.Clear()
         arrayFeaturesCompleted.Clear()
         listFeaturesToAdd.Items.Clear()
-        cmd = New MySqlCommand("SELECT featuretable,complete FROM genomerunner", cn)
+        cmd = New MySqlCommand("SELECT featuretable,complete FROM genomerunner ORDER BY ID", cn)
         Dim dr As MySqlDataReader
         dr = cmd.ExecuteReader()
         While dr.Read()
@@ -753,6 +753,52 @@ Public Class FormMain
         End If
     End Sub
 
+    Private Sub btnGenerateBedFile_Click(sender As System.Object, e As System.EventArgs) Handles btnGenerateBedFile.Click
+        Dim processSubfeatures As Integer = 0 '0 - first time encounter, 1 - process Subfeatures, 2 - do not process subfeatures
+        For Each Feature In listFeaturesToAdd.SelectedItems
+            OpenDatabase()
+            cmd = New MySqlCommand("SELECT QueryType,Name FROM genomerunner WHERE FeatureTable='" & Feature & "';", cn)
+            dr = cmd.ExecuteReader
+            If dr.HasRows Then
+                dr.Read()
+                Dim distinctName As String = vbNullString
+                If dr(1) <> vbNullString And dr(1) <> "NULL" Then
+                    distinctName = dr(1)
+                    If processSubfeatures = 0 Then
+                        Dim response As MsgBoxResult
+                        response = MsgBox("Table " & Feature & " has subgroups in column " & distinctName & ". Do you want to process all tables like this into separate subgroups (Yes), or process them as is (No)?", MsgBoxStyle.YesNo, "Process subfeatures separately?")
+                        If response = MsgBoxResult.Yes Then processSubfeatures = 1 Else processSubfeatures = 2
+                    End If
+                    dr.Close() : cmd.Dispose()
+                    If processSubfeatures = 1 Then
+                        Dim distinctNames As New List(Of String)
+                        cmd1 = New MySqlCommand("SELECT DISTINCT " & distinctName & " FROM " & Feature & ";", cn)
+                        dr1 = cmd1.ExecuteReader
+                        While dr1.Read
+                            distinctNames.Add(dr1(0))
+                        End While
+                        dr1.Close() : cmd1.Dispose()
+                        For Each dName In distinctNames
+                            cmd1 = New MySqlCommand("SELECT chrom,chromStart,chromEnd,name,score,strand FROM " & Feature & " WHERE " & distinctName & "='" & dName & "';", cn)
+                            dr1 = cmd1.ExecuteReader
+                            Dim filePath = "F:\" & Feature & "." & dName & ".bed"
+                            Using writer As New StreamWriter(filePath.ToString)
+                                While dr1.Read
+                                    writer.WriteLine(dr1(0) & vbTab & dr1(1) & vbTab & dr1(2) & vbTab & dr1(3) & vbTab & dr1(4) & vbTab & dr1(5))
+                                End While
+                            End Using
+                            dr1.Close() : cmd1.Dispose()
+                        Next
+                    End If
+                    dr.Close() : cmd.Dispose()
+                End If
+
+            End If
+        Next
+
+    End Sub
+
+
 
     Private Sub btnUpdateStatistics_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpdateStatistics.Click
         'for each entry in genomerunner, count how many records are in that table and save that to count field of genomerunner
@@ -971,26 +1017,15 @@ Public Class FormMain
 
 
     Private Sub Button1_Click_1(sender As System.Object, e As System.EventArgs) Handles Button1.Click
-        'Dim i As Int16 = 255
-        ''Debug.Print(Conversion.Hex(binary))
-        'Dim bin As String = Convert.ToString(i, 2)
-        'bin = "1111"
-        'Debug.Print(bin)
-        'Debug.Print(Convert.ToInt32(bin, 2))
-        'Dim ftd As DateTime = System.IO.File.GetLastWriteTime("F:\WorkOMRF\Databases\USCS data\hg19_raw\acembly.sql")
-        'Debug.Print(ftd)
-        'ftd = Format(ftd, "yyyy-MM-dd")
-        'Dim strsplit = Split(ftd, " ")
-        'FixHG19_rmsk()
-        'Dim num As Integer = 1
-        'Debug.Print(String.Format("{0:00000}", num))
-        For Each Feature In listFeaturesToAdd.SelectedItems
-            Debug.Print(Feature.ToString)
-        Next
+        InputBox("111")
     End Sub
 
 
 
+
+    Private Sub txtDatabase_TextChanged(sender As System.Object, e As System.EventArgs) Handles txtDatabase.TextChanged
+        txtUcscdb.Text = txtDatabase.Text
+    End Sub
 End Class
 
 Class ChromBase

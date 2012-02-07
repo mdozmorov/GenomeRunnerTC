@@ -41,17 +41,17 @@ Partial Class FormMain
         Me.Label6 = New System.Windows.Forms.Label()
         Me.btnMakeDatabase = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.btnGenerateBedFile = New System.Windows.Forms.Button()
+        Me.btnCompareToUCSC = New System.Windows.Forms.Button()
+        Me.btnUpdateStatistics = New System.Windows.Forms.Button()
         Me.btnStatistics = New System.Windows.Forms.Button()
         Me.btnGetCountofBasePairsCovered = New System.Windows.Forms.Button()
-        Me.btnGenerateBedFile = New System.Windows.Forms.Button()
         Me.btnExonTable = New System.Windows.Forms.Button()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.SaveFD = New System.Windows.Forms.SaveFileDialog()
         Me.txtUcscdb = New System.Windows.Forms.TextBox()
         Me.Label7 = New System.Windows.Forms.Label()
-        Me.btnCompareToUCSC = New System.Windows.Forms.Button()
         Me.btnLoadGRTable = New System.Windows.Forms.Button()
-        Me.btnUpdateStatistics = New System.Windows.Forms.Button()
         Me.btnExportGenomeRunner = New System.Windows.Forms.Button()
         Me.lblDataDownloadPath = New System.Windows.Forms.Label()
         Me.btnChangeDataDownloadPath = New System.Windows.Forms.Button()
@@ -130,7 +130,7 @@ Partial Class FormMain
         '
         'ProgressBar1
         '
-        Me.ProgressBar1.Location = New System.Drawing.Point(7, 352)
+        Me.ProgressBar1.Location = New System.Drawing.Point(7, 365)
         Me.ProgressBar1.Margin = New System.Windows.Forms.Padding(2)
         Me.ProgressBar1.Name = "ProgressBar1"
         Me.ProgressBar1.Size = New System.Drawing.Size(544, 19)
@@ -139,7 +139,7 @@ Partial Class FormMain
         'lblProgress
         '
         Me.lblProgress.AutoSize = True
-        Me.lblProgress.Location = New System.Drawing.Point(4, 337)
+        Me.lblProgress.Location = New System.Drawing.Point(4, 350)
         Me.lblProgress.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.lblProgress.Name = "lblProgress"
         Me.lblProgress.Size = New System.Drawing.Size(66, 13)
@@ -208,7 +208,7 @@ Partial Class FormMain
         '
         'btnMakeDatabase
         '
-        Me.btnMakeDatabase.Location = New System.Drawing.Point(5, 285)
+        Me.btnMakeDatabase.Location = New System.Drawing.Point(5, 227)
         Me.btnMakeDatabase.Name = "btnMakeDatabase"
         Me.btnMakeDatabase.Size = New System.Drawing.Size(173, 23)
         Me.btnMakeDatabase.TabIndex = 53
@@ -217,15 +217,42 @@ Partial Class FormMain
         '
         'GroupBox2
         '
+        Me.GroupBox2.Controls.Add(Me.btnGenerateBedFile)
         Me.GroupBox2.Controls.Add(Me.btnCompareToUCSC)
         Me.GroupBox2.Controls.Add(Me.btnUpdateStatistics)
-        Me.GroupBox2.Controls.Add(Me.btnGenerateBedFile)
         Me.GroupBox2.Location = New System.Drawing.Point(421, 6)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(210, 173)
         Me.GroupBox2.TabIndex = 57
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Special Tools"
+        '
+        'btnGenerateBedFile
+        '
+        Me.btnGenerateBedFile.Location = New System.Drawing.Point(11, 110)
+        Me.btnGenerateBedFile.Name = "btnGenerateBedFile"
+        Me.btnGenerateBedFile.Size = New System.Drawing.Size(75, 23)
+        Me.btnGenerateBedFile.TabIndex = 63
+        Me.btnGenerateBedFile.Text = "Button2"
+        Me.btnGenerateBedFile.UseVisualStyleBackColor = True
+        '
+        'btnCompareToUCSC
+        '
+        Me.btnCompareToUCSC.Location = New System.Drawing.Point(11, 19)
+        Me.btnCompareToUCSC.Name = "btnCompareToUCSC"
+        Me.btnCompareToUCSC.Size = New System.Drawing.Size(173, 23)
+        Me.btnCompareToUCSC.TabIndex = 60
+        Me.btnCompareToUCSC.Text = "Compare to UCSC"
+        Me.btnCompareToUCSC.UseVisualStyleBackColor = True
+        '
+        'btnUpdateStatistics
+        '
+        Me.btnUpdateStatistics.Location = New System.Drawing.Point(11, 52)
+        Me.btnUpdateStatistics.Name = "btnUpdateStatistics"
+        Me.btnUpdateStatistics.Size = New System.Drawing.Size(173, 23)
+        Me.btnUpdateStatistics.TabIndex = 62
+        Me.btnUpdateStatistics.Text = "Update Statistics"
+        Me.btnUpdateStatistics.UseVisualStyleBackColor = True
         '
         'btnStatistics
         '
@@ -245,18 +272,6 @@ Partial Class FormMain
         Me.btnGetCountofBasePairsCovered.TabIndex = 62
         Me.btnGetCountofBasePairsCovered.Text = "Get count of base pairs covered by features"
         Me.btnGetCountofBasePairsCovered.UseVisualStyleBackColor = True
-        '
-        'btnGenerateBedFile
-        '
-        Me.btnGenerateBedFile.Enabled = False
-        Me.btnGenerateBedFile.Location = New System.Drawing.Point(11, 81)
-        Me.btnGenerateBedFile.Name = "btnGenerateBedFile"
-        Me.btnGenerateBedFile.Size = New System.Drawing.Size(173, 23)
-        Me.btnGenerateBedFile.TabIndex = 60
-        Me.btnGenerateBedFile.Text = "Generate Feature Bed File "
-        Me.ToolTip1.SetToolTip(Me.btnGenerateBedFile, "Extracts the Chrom, ChromStart, and ChromEnd of the selected feature and generate" & _
-        "s a .bed file")
-        Me.btnGenerateBedFile.UseVisualStyleBackColor = True
         '
         'btnExonTable
         '
@@ -286,36 +301,18 @@ Partial Class FormMain
         Me.Label7.TabIndex = 59
         Me.Label7.Text = "UCSC db"
         '
-        'btnCompareToUCSC
-        '
-        Me.btnCompareToUCSC.Location = New System.Drawing.Point(11, 19)
-        Me.btnCompareToUCSC.Name = "btnCompareToUCSC"
-        Me.btnCompareToUCSC.Size = New System.Drawing.Size(173, 23)
-        Me.btnCompareToUCSC.TabIndex = 60
-        Me.btnCompareToUCSC.Text = "Compare to UCSC"
-        Me.btnCompareToUCSC.UseVisualStyleBackColor = True
-        '
         'btnLoadGRTable
         '
-        Me.btnLoadGRTable.Location = New System.Drawing.Point(5, 222)
+        Me.btnLoadGRTable.Location = New System.Drawing.Point(5, 198)
         Me.btnLoadGRTable.Name = "btnLoadGRTable"
         Me.btnLoadGRTable.Size = New System.Drawing.Size(173, 23)
         Me.btnLoadGRTable.TabIndex = 61
         Me.btnLoadGRTable.Text = "Load GR table"
         Me.btnLoadGRTable.UseVisualStyleBackColor = True
         '
-        'btnUpdateStatistics
-        '
-        Me.btnUpdateStatistics.Location = New System.Drawing.Point(11, 52)
-        Me.btnUpdateStatistics.Name = "btnUpdateStatistics"
-        Me.btnUpdateStatistics.Size = New System.Drawing.Size(173, 23)
-        Me.btnUpdateStatistics.TabIndex = 62
-        Me.btnUpdateStatistics.Text = "Update Statistics"
-        Me.btnUpdateStatistics.UseVisualStyleBackColor = True
-        '
         'btnExportGenomeRunner
         '
-        Me.btnExportGenomeRunner.Location = New System.Drawing.Point(5, 251)
+        Me.btnExportGenomeRunner.Location = New System.Drawing.Point(5, 256)
         Me.btnExportGenomeRunner.Name = "btnExportGenomeRunner"
         Me.btnExportGenomeRunner.Size = New System.Drawing.Size(173, 23)
         Me.btnExportGenomeRunner.TabIndex = 63
@@ -325,7 +322,7 @@ Partial Class FormMain
         'lblDataDownloadPath
         '
         Me.lblDataDownloadPath.AutoSize = True
-        Me.lblDataDownloadPath.Location = New System.Drawing.Point(4, 173)
+        Me.lblDataDownloadPath.Location = New System.Drawing.Point(4, 337)
         Me.lblDataDownloadPath.Name = "lblDataDownloadPath"
         Me.lblDataDownloadPath.Size = New System.Drawing.Size(106, 13)
         Me.lblDataDownloadPath.TabIndex = 64
@@ -333,7 +330,7 @@ Partial Class FormMain
         '
         'btnChangeDataDownloadPath
         '
-        Me.btnChangeDataDownloadPath.Location = New System.Drawing.Point(5, 193)
+        Me.btnChangeDataDownloadPath.Location = New System.Drawing.Point(5, 304)
         Me.btnChangeDataDownloadPath.Name = "btnChangeDataDownloadPath"
         Me.btnChangeDataDownloadPath.Size = New System.Drawing.Size(173, 23)
         Me.btnChangeDataDownloadPath.TabIndex = 65
@@ -353,7 +350,7 @@ Partial Class FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(684, 385)
+        Me.ClientSize = New System.Drawing.Size(684, 395)
         Me.Controls.Add(Me.btnStatistics)
         Me.Controls.Add(Me.btnGetCountofBasePairsCovered)
         Me.Controls.Add(Me.btnExonTable)
@@ -409,7 +406,6 @@ Partial Class FormMain
     Friend WithEvents GroupBox2 As System.Windows.Forms.GroupBox
     Friend WithEvents btnExonTable As System.Windows.Forms.Button
     Friend WithEvents ToolTip1 As System.Windows.Forms.ToolTip
-    Friend WithEvents btnGenerateBedFile As System.Windows.Forms.Button
     Friend WithEvents SaveFD As System.Windows.Forms.SaveFileDialog
     Friend WithEvents btnStatistics As System.Windows.Forms.Button
     Friend WithEvents btnGetCountofBasePairsCovered As System.Windows.Forms.Button
@@ -422,5 +418,6 @@ Partial Class FormMain
     Friend WithEvents lblDataDownloadPath As System.Windows.Forms.Label
     Friend WithEvents btnChangeDataDownloadPath As System.Windows.Forms.Button
     Friend WithEvents Button1 As System.Windows.Forms.Button
+    Friend WithEvents btnGenerateBedFile As System.Windows.Forms.Button
 
 End Class
