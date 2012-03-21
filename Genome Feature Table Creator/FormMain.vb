@@ -324,7 +324,7 @@ Public Class FormMain
         dr.Close() : cmd.Dispose()
         'Now delete unzipped .txt file to save space.
         File.Delete(filePathFeaturesToAdd & feature & ".txt")
-        If feature = "rmsk" Then FixHG19_rmsk() 'If the feature just loaded is rmsk table, fix column names
+        If feature = "rmsk" Then Fix_rmsk_table() 'If the feature just loaded is rmsk table, fix column names
         'Update time stamp when the data were loaded
     End Sub
 
@@ -520,10 +520,10 @@ Public Class FormMain
         End If
     End Sub
 
-    Private Sub FixHG19_rmsk()
+    Private Sub Fix_rmsk_table()
         OpenDatabase()
-        If TableExists("rmsk") And InStr(txtDatabase.Text, "hg19") > 0 Then
-            cmd = New MySqlCommand("ALTER TABLE `hg19`.`rmsk` CHANGE COLUMN `genoName` `chrom` VARCHAR(255) NOT NULL DEFAULT '', CHANGE COLUMN `genoStart` `chromStart` INT(10) UNSIGNED NOT NULL DEFAULT '0', CHANGE COLUMN `genoEnd` `chromEnd` INT(10) UNSIGNED NOT NULL DEFAULT '0', DROP INDEX `genoName`, ADD INDEX `genoName` (`chrom`(14) ASC, `bin` ASC);", cn)
+        If TableExists("rmsk") Then
+            cmd = New MySqlCommand("ALTER TABLE rmsk CHANGE COLUMN `genoName` `chrom` VARCHAR(255) NOT NULL DEFAULT '', CHANGE COLUMN `genoStart` `chromStart` INT(10) UNSIGNED NOT NULL DEFAULT '0', CHANGE COLUMN `genoEnd` `chromEnd` INT(10) UNSIGNED NOT NULL DEFAULT '0'", cn) ' DROP INDEX `genoName`, ADD INDEX `genoName` (`chrom`(14) ASC, `bin` ASC);", cn)
             cmd.ExecuteNonQuery() : cmd.Dispose()
         End If
     End Sub
@@ -684,14 +684,15 @@ Public Class FormMain
                 Debug.Print(feature)
             End If
             If Not (ucscTablesToCounts(feature) = 0 And localTablesToCounts(feature) = 0) Then
-                If (Math.Abs(ucscTablesToCounts(feature) - localTablesToCounts(feature)) / ucscTablesToCounts(feature)) >= 0.1 Then
+                'If (Math.Abs(ucscTablesToCounts(feature) - localTablesToCounts(feature)) / ucscTablesToCounts(feature)) >= 0.1 Then 'Discrepancies in 10% not counted
+                If Math.Abs(ucscTablesToCounts(feature)) <> Math.Abs(localTablesToCounts(feature)) Then 'Exact match required
                     Debug.Print("Mismatch. Feature: " & feature & "; UCSC: " & ucscTablesToCounts(feature) & "; local: " & localTablesToCounts(feature))
                     OpenDatabase()
                     cmd = New MySqlCommand("SELECT complete FROM genomerunner WHERE FeatureTable='" & feature & "';", cn)
                     dr = cmd.ExecuteReader : dr.Read()
                     binary = Convert.ToString(dr(0), 2)
                     dr.Close() : cmd.Dispose()
-                    Mid(binary, 5, 1) = "0"
+                    If binary <> 0 Then Mid(binary, 5, 1) = "0"
                     cmd = New MySqlCommand("UPDATE genomerunner SET complete=" & Convert.ToInt32(binary, 2) & " WHERE FeatureTable='" & feature & "';", cn)
                     cmd.ExecuteNonQuery() : cmd.Dispose()
                 End If
@@ -791,6 +792,8 @@ Public Class FormMain
                         Next
                     End If
                     dr.Close() : cmd.Dispose()
+                Else
+
                 End If
 
             End If
@@ -1025,6 +1028,66 @@ Public Class FormMain
 
     Private Sub txtDatabase_TextChanged(sender As System.Object, e As System.EventArgs) Handles txtDatabase.TextChanged
         txtUcscdb.Text = txtDatabase.Text
+    End Sub
+
+    Private Sub btnFixMMrmsk_Click(sender As System.Object, e As System.EventArgs) Handles btnFixMMrmsk.Click
+        Fix_rmsk_table()
+        OpenDatabase()
+        Dim rmskTables As List(Of String) = New List(Of String), rmskTime As String
+        cmd = New MySqlCommand("SELECT FeatureTable,time FROM genomerunner WHERE FeatureTable like '%rmsk';", cn)
+        dr = cmd.ExecuteReader
+        If dr.HasRows Then
+            While dr.Read
+                rmskTables.Add(dr(0))
+                rmskTime = dr(1)
+            End While
+        Else
+            dr.Close() : cmd.Dispose() : Exit Sub
+        End If
+        dr.Close() : cmd.Dispose()
+
+        cmd = New MySqlCommand("CREATE TABLE  IF NOT EXISTS rmsk (" & _
+                            "bin smallint(5) unsigned NOT NULL DEFAULT 0," & _
+                            "swScore int(10) unsigned NOT NULL DEFAULT 0," & _
+                            "milliDiv int(10) unsigned NOT NULL DEFAULT 0," & _
+                            "milliDel int(10) unsigned NOT NULL DEFAULT 0," & _
+                            "milliIns int(10) unsigned NOT NULL DEFAULT 0," & _
+                            "genoName varchar(255) NOT NULL DEFAULT ''," & _
+                            "genoStart int(10) unsigned NOT NULL DEFAULT 0," & _
+                            "genoEnd int(10) unsigned NOT NULL DEFAULT 0," & _
+                            "genoLeft int(11) NOT NULL DEFAULT 0," & _
+                            "strand char(1) NOT NULL DEFAULT ''," & _
+                            "repName varchar(255) NOT NULL DEFAULT ''," & _
+                            "repClass varchar(255) NOT NULL DEFAULT ''," & _
+                            "repFamily varchar(255) NOT NULL DEFAULT ''," & _
+                            "repStart int(11) NOT NULL DEFAULT 0," & _
+                            "repEnd int(11) NOT NULL DEFAULT 0," & _
+                            "repLeft int(11) NOT NULL DEFAULT 0," & _
+                            "id char(1) NOT NULL DEFAULT ''," & _
+                            "KEY bin (bin)" & _
+                            ")", cn)
+        cmd.ExecuteNonQuery() : cmd.Dispose()
+        Fix_rmsk_table()
+
+        For Each rTable In rmskTables
+            'decompresses this feature's .gz file to a .txt file
+            If File.Exists(DataDownloadPath & rTable.ToString & ".txt") = False Then
+                Using outfile As FileStream = File.Create(DataDownloadPath & rTable.ToString & ".txt")
+                    Using infile As FileStream = File.OpenRead(DataDownloadPath & rTable.ToString & ".txt.gz")
+                        Using Decompress As System.IO.Compression.GZipStream = New System.IO.Compression.GZipStream(infile, Compression.CompressionMode.Decompress)
+                            Decompress.CopyTo(outfile)
+                        End Using
+                    End Using
+                End Using
+                cmd = New MySqlCommand("LOAD DATA LOCAL INFILE '" & DataDownloadPath.Replace("\", "/") & rTable.ToString & ".txt" & "' INTO TABLE rmsk;", cn)
+                cmd.ExecuteNonQuery() : cmd.Dispose()
+                File.Delete(DataDownloadPath & rTable.ToString & ".txt")
+            End If
+        Next
+
+        cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, Tier, Category, orderofcategory, Name, complete, time) VALUES (" & _
+                                                    "100002,'rmsk','Repeating Elements by RepeatMasker Combined','OutputScore','repName',2,'09|Variation and Repeats',0,'repFamily',31,'" & rmskTime & "');", cn)
+        cmd.ExecuteNonQuery() : cmd.Dispose()
     End Sub
 End Class
 

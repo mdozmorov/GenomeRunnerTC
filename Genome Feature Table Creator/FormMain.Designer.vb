@@ -41,6 +41,7 @@ Partial Class FormMain
         Me.Label6 = New System.Windows.Forms.Label()
         Me.btnMakeDatabase = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.Button2 = New System.Windows.Forms.Button()
         Me.btnGenerateBedFile = New System.Windows.Forms.Button()
         Me.btnCompareToUCSC = New System.Windows.Forms.Button()
         Me.btnUpdateStatistics = New System.Windows.Forms.Button()
@@ -56,6 +57,7 @@ Partial Class FormMain
         Me.lblDataDownloadPath = New System.Windows.Forms.Label()
         Me.btnChangeDataDownloadPath = New System.Windows.Forms.Button()
         Me.Button1 = New System.Windows.Forms.Button()
+        Me.btnFixMMrmsk = New System.Windows.Forms.Button()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -217,6 +219,8 @@ Partial Class FormMain
         '
         'GroupBox2
         '
+        Me.GroupBox2.Controls.Add(Me.btnFixMMrmsk)
+        Me.GroupBox2.Controls.Add(Me.Button2)
         Me.GroupBox2.Controls.Add(Me.btnGenerateBedFile)
         Me.GroupBox2.Controls.Add(Me.btnCompareToUCSC)
         Me.GroupBox2.Controls.Add(Me.btnUpdateStatistics)
@@ -226,6 +230,15 @@ Partial Class FormMain
         Me.GroupBox2.TabIndex = 57
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Special Tools"
+        '
+        'Button2
+        '
+        Me.Button2.Location = New System.Drawing.Point(11, 139)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(75, 23)
+        Me.Button2.TabIndex = 64
+        Me.Button2.Text = "Button2"
+        Me.Button2.UseVisualStyleBackColor = True
         '
         'btnGenerateBedFile
         '
@@ -346,11 +359,20 @@ Partial Class FormMain
         Me.Button1.Text = "Button1"
         Me.Button1.UseVisualStyleBackColor = True
         '
+        'btnFixMMrmsk
+        '
+        Me.btnFixMMrmsk.Location = New System.Drawing.Point(109, 139)
+        Me.btnFixMMrmsk.Name = "btnFixMMrmsk"
+        Me.btnFixMMrmsk.Size = New System.Drawing.Size(75, 23)
+        Me.btnFixMMrmsk.TabIndex = 65
+        Me.btnFixMMrmsk.Text = "Button3"
+        Me.btnFixMMrmsk.UseVisualStyleBackColor = True
+        '
         'FormMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(684, 395)
+        Me.ClientSize = New System.Drawing.Size(853, 395)
         Me.Controls.Add(Me.btnStatistics)
         Me.Controls.Add(Me.btnGetCountofBasePairsCovered)
         Me.Controls.Add(Me.btnExonTable)
@@ -419,5 +441,7 @@ Partial Class FormMain
     Friend WithEvents btnChangeDataDownloadPath As System.Windows.Forms.Button
     Friend WithEvents Button1 As System.Windows.Forms.Button
     Friend WithEvents btnGenerateBedFile As System.Windows.Forms.Button
+    Friend WithEvents Button2 As System.Windows.Forms.Button
+    Friend WithEvents btnFixMMrmsk As System.Windows.Forms.Button
 
 End Class
