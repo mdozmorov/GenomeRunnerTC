@@ -41,6 +41,7 @@ Partial Class FormMain
         Me.Label6 = New System.Windows.Forms.Label()
         Me.btnMakeDatabase = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.btnFixMMrmsk = New System.Windows.Forms.Button()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.btnGenerateBedFile = New System.Windows.Forms.Button()
         Me.btnCompareToUCSC = New System.Windows.Forms.Button()
@@ -57,7 +58,6 @@ Partial Class FormMain
         Me.lblDataDownloadPath = New System.Windows.Forms.Label()
         Me.btnChangeDataDownloadPath = New System.Windows.Forms.Button()
         Me.Button1 = New System.Windows.Forms.Button()
-        Me.btnFixMMrmsk = New System.Windows.Forms.Button()
         Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -231,6 +231,15 @@ Partial Class FormMain
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Special Tools"
         '
+        'btnFixMMrmsk
+        '
+        Me.btnFixMMrmsk.Location = New System.Drawing.Point(109, 139)
+        Me.btnFixMMrmsk.Name = "btnFixMMrmsk"
+        Me.btnFixMMrmsk.Size = New System.Drawing.Size(75, 23)
+        Me.btnFixMMrmsk.TabIndex = 65
+        Me.btnFixMMrmsk.Text = "Button3"
+        Me.btnFixMMrmsk.UseVisualStyleBackColor = True
+        '
         'Button2
         '
         Me.Button2.Location = New System.Drawing.Point(11, 139)
@@ -358,15 +367,6 @@ Partial Class FormMain
         Me.Button1.TabIndex = 66
         Me.Button1.Text = "Button1"
         Me.Button1.UseVisualStyleBackColor = True
-        '
-        'btnFixMMrmsk
-        '
-        Me.btnFixMMrmsk.Location = New System.Drawing.Point(109, 139)
-        Me.btnFixMMrmsk.Name = "btnFixMMrmsk"
-        Me.btnFixMMrmsk.Size = New System.Drawing.Size(75, 23)
-        Me.btnFixMMrmsk.TabIndex = 65
-        Me.btnFixMMrmsk.Text = "Button3"
-        Me.btnFixMMrmsk.UseVisualStyleBackColor = True
         '
         'FormMain
         '

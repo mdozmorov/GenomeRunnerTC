@@ -791,11 +791,21 @@ Public Class FormMain
                             dr1.Close() : cmd1.Dispose()
                         Next
                     End If
-                    dr.Close() : cmd.Dispose()
                 Else
-
+                    dr.Close() : cmd.Dispose()
+                    lblProgress.Text = "Extracting .bed file for " & Feature
+                    Dim filePath = "F:\" & Feature & ".bed"
+                    Using writer As StreamWriter = New StreamWriter(filePath.ToString)
+                        cmd1 = New MySqlCommand("SELECT chrom,chromStart,chromEnd,name,score,strand FROM " & Feature & ";", cn)
+                        dr1 = cmd1.ExecuteReader
+                        While dr1.Read
+                            writer.WriteLine(dr1(0) & vbTab & dr1(1) & vbTab & dr1(2) & vbTab & dr1(3) & vbTab & dr1(4) & vbTab & dr1(5))
+                        End While
+                        dr1.Close() : cmd1.Dispose()
+                    End Using
+                    lblProgress.Text = "Extracting .bed file for " & Feature & " completed"
                 End If
-
+                dr.Close() : cmd.Dispose()
             End If
         Next
 
@@ -1088,6 +1098,10 @@ Public Class FormMain
         cmd = New MySqlCommand("INSERT INTO genomerunner (id, FeatureTable, FeatureName, QueryType, ThresholdType, Tier, Category, orderofcategory, Name, complete, time) VALUES (" & _
                                                     "100002,'rmsk','Repeating Elements by RepeatMasker Combined','OutputScore','repName',2,'09|Variation and Repeats',0,'repFamily',31,'" & rmskTime & "');", cn)
         cmd.ExecuteNonQuery() : cmd.Dispose()
+    End Sub
+
+    Private Sub Button2_Click(sender As System.Object, e As System.EventArgs) Handles Button2.Click
+
     End Sub
 End Class
 
