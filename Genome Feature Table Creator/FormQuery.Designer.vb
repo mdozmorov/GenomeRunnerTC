@@ -77,7 +77,7 @@ Partial Class FormQuery
         Me.MinimizeBox = False
         Me.Name = "FormQuery"
         Me.ShowIcon = False
-        Me.Text = "Failed to load file to database"
+        Me.Text = "Failed to load file to database. Copy the query and execute it manually"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
