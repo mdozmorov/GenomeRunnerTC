@@ -260,7 +260,7 @@ Partial Class FormMain
         '
         'btnCompareToUCSC
         '
-        Me.btnCompareToUCSC.Location = New System.Drawing.Point(11, 19)
+        Me.btnCompareToUCSC.Location = New System.Drawing.Point(11, 49)
         Me.btnCompareToUCSC.Name = "btnCompareToUCSC"
         Me.btnCompareToUCSC.Size = New System.Drawing.Size(173, 23)
         Me.btnCompareToUCSC.TabIndex = 60
@@ -269,7 +269,7 @@ Partial Class FormMain
         '
         'btnUpdateStatistics
         '
-        Me.btnUpdateStatistics.Location = New System.Drawing.Point(11, 52)
+        Me.btnUpdateStatistics.Location = New System.Drawing.Point(11, 82)
         Me.btnUpdateStatistics.Name = "btnUpdateStatistics"
         Me.btnUpdateStatistics.Size = New System.Drawing.Size(173, 23)
         Me.btnUpdateStatistics.TabIndex = 62
